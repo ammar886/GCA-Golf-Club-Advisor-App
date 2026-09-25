@@ -246,6 +246,11 @@ GoRouter createRouter(AppStateNotifier appStateNotifier) => GoRouter(
               ParamType.SupabaseRow,
             ),
           ),
+        ),
+        FFRoute(
+          name: SupportWidget.routeName,
+          path: SupportWidget.routePath,
+          builder: (context, params) => SupportWidget(),
         )
       ].map((r) => r.toRoute(appStateNotifier)).toList(),
     );
