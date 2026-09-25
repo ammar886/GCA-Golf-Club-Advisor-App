@@ -143,7 +143,7 @@ class _HomeWidgetState extends State<HomeWidget> {
                   ),
                 ),
                 Icon(
-                  Icons.notifications_none,
+                  Icons.support_agent,
                   color: FlutterFlowTheme.of(context).primaryText,
                   size: 24.0,
                 ),

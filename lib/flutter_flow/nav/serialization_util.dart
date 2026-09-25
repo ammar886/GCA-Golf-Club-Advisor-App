@@ -266,12 +266,16 @@ dynamic deserializeParam<T>(
             return GolfClubsRow(data);
           case GolfCoursesRow:
             return GolfCoursesRow(data);
+          case ParSettingsRow:
+            return ParSettingsRow(data);
           case ReviewCriteriaRow:
             return ReviewCriteriaRow(data);
           case ReviewSectionsRow:
             return ReviewSectionsRow(data);
           case SpatialRefSysRow:
             return SpatialRefSysRow(data);
+          case SupportRequestsRow:
+            return SupportRequestsRow(data);
           case UsersRow:
             return UsersRow(data);
           default:

@@ -42,6 +42,12 @@ class FFAppState extends ChangeNotifier {
   void deleteCurrentRole() {
     secureStorage.delete(key: 'ff_currentRole');
   }
+
+  bool _subjectVald = true;
+  bool get subjectVald => _subjectVald;
+  set subjectVald(bool value) {
+    _subjectVald = value;
+  }
 }
 
 void _safeInit(Function() initializeField) {

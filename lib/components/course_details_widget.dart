@@ -521,6 +521,11 @@ class _CourseDetailsWidgetState extends State<CourseDetailsWidget> {
                   _model.parValue1 ??= widget.preExistingCourse?.parM,
                 ),
                 options: List<double>.from([
+                  60.0,
+                  61.0,
+                  62.0,
+                  63.0,
+                  64.0,
                   65.0,
                   66.0,
                   67.0,
@@ -532,9 +537,16 @@ class _CourseDetailsWidgetState extends State<CourseDetailsWidget> {
                   73.0,
                   74.0,
                   75.0,
-                  76.0
+                  76.0,
+                  77.0,
+                  78.0
                 ]),
                 optionLabels: [
+                  '60',
+                  '61',
+                  '62',
+                  '63',
+                  '64',
                   '65',
                   '66',
                   '67',
@@ -546,7 +558,9 @@ class _CourseDetailsWidgetState extends State<CourseDetailsWidget> {
                   '73',
                   '74',
                   '75',
-                  '76'
+                  '76',
+                  '77',
+                  '78'
                 ],
                 onChanged: (val) async {
                   safeSetState(() => _model.parValue1 = val);
@@ -623,6 +637,11 @@ class _CourseDetailsWidgetState extends State<CourseDetailsWidget> {
                   _model.parValue2 ??= widget.preExistingCourse?.parF,
                 ),
                 options: List<double>.from([
+                  60.0,
+                  61.0,
+                  62.0,
+                  63.0,
+                  64.0,
                   65.0,
                   66.0,
                   67.0,
@@ -634,9 +653,16 @@ class _CourseDetailsWidgetState extends State<CourseDetailsWidget> {
                   73.0,
                   74.0,
                   75.0,
-                  76.0
+                  76.0,
+                  77.0,
+                  78.0
                 ]),
                 optionLabels: [
+                  '60',
+                  '61',
+                  '62',
+                  '63',
+                  '64',
                   '65',
                   '66',
                   '67',
@@ -648,7 +674,9 @@ class _CourseDetailsWidgetState extends State<CourseDetailsWidget> {
                   '73',
                   '74',
                   '75',
-                  '76'
+                  '76',
+                  '77',
+                  '78'
                 ],
                 onChanged: (val) async {
                   safeSetState(() => _model.parValue2 = val);

@@ -31,3 +31,11 @@ export '/pages/admin/admin_profile/admin_profile_widget.dart'
     show AdminProfileWidget;
 export '/pages/admin/update_password/update_password_widget.dart'
     show UpdatePasswordWidget;
+<<<<<<< HEAD
+=======
+export '/pages/admin/reviews_management/reviews_management_widget.dart'
+    show ReviewsManagementWidget;
+export '/pages/admin/review_detail_view/review_detail_view_widget.dart'
+    show ReviewDetailViewWidget;
+export '/support/support_widget.dart' show SupportWidget;
+>>>>>>> origin/flutterflow

@@ -59,6 +59,60 @@ class SendBrevoMailCall {
   }
 }
 
+class SupportMailCall {
+  static Future<ApiCallResponse> call({
+    String? email = '',
+    int? id,
+    String? apiKey,
+    String? name = '',
+    String? subject = '',
+    String? description = '',
+  }) async {
+    apiKey ??= FFDevEnvironmentValues().brevoKey;
+
+    final ffApiRequestBody = '''
+{
+  "sender": {
+    "name": "GCA",
+    "email": "jeremy.davies@golfclubadvisor.co.uk"
+  },
+  "to": [
+    {
+      "email": "jeremy.davies@golfclubadvisor.co.uk"
+    }
+  ],
+  "templateId": ${id},
+  "params": {
+"email": "${escapeStringForJson(email)}",
+"name": "${escapeStringForJson(name)}",
+"subject": "${escapeStringForJson(subject)}",
+"description": "${escapeStringForJson(description)}"
+   
+  },
+  "htmlContent": "<html><head></head><body><p>Hello,</p>This is my first transactional email sent from Brevo.</p></body></html>"
+}''';
+    return ApiManager.instance.makeApiCall(
+      callName: 'supportMail',
+      apiUrl: 'https://api.brevo.com/v3/smtp/email',
+      callType: ApiCallType.POST,
+      headers: {
+        'api-key': '${apiKey}',
+        'Content-Type': 'application/json',
+        'accept': 'application/json',
+      },
+      params: {},
+      body: ffApiRequestBody,
+      bodyType: BodyType.JSON,
+      returnBody: true,
+      encodeBodyUtf8: false,
+      decodeUtf8: false,
+      cache: false,
+      isStreamingApi: false,
+      alwaysAllowBody: false,
+    );
+  }
+}
+
 class CreateSubAdminCall {
   static Future<ApiCallResponse> call({
     String? email = '',
