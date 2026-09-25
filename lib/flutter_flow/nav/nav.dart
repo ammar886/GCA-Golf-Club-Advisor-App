@@ -244,8 +244,6 @@ GoRouter createRouter(AppStateNotifier appStateNotifier) => GoRouter(
           name: UpdatePasswordWidget.routeName,
           path: UpdatePasswordWidget.routePath,
           builder: (context, params) => UpdatePasswordWidget(),
-<<<<<<< HEAD
-=======
         ),
         FFRoute(
           name: ReviewsManagementWidget.routeName,
@@ -268,7 +266,6 @@ GoRouter createRouter(AppStateNotifier appStateNotifier) => GoRouter(
           name: SupportWidget.routeName,
           path: SupportWidget.routePath,
           builder: (context, params) => SupportWidget(),
->>>>>>> origin/flutterflow
         )
       ].map((r) => r.toRoute(appStateNotifier)).toList(),
     );
