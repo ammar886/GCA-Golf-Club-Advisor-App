@@ -1,17 +1,27 @@
+import '/auth/supabase_auth/auth_util.dart';
+import '/backend/supabase/supabase.dart';
 import '/flutter_flow/flutter_flow_icon_button.dart';
 import '/flutter_flow/flutter_flow_styled_border.dart';
 import '/flutter_flow/flutter_flow_theme.dart';
 import '/flutter_flow/flutter_flow_util.dart';
+import '/flutter_flow/flutter_flow_widgets.dart';
+import '/flutter_flow/upload_data.dart';
+import 'dart:ui';
 import 'package:cached_network_image/cached_network_image.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_rating_bar/flutter_rating_bar.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:provider/provider.dart';
+import '/pages/my_reviews/my_reviews_widget.dart';
 import 'write_review_model.dart';
 export 'write_review_model.dart';
 
 class WriteReviewWidget extends StatefulWidget {
-  const WriteReviewWidget({super.key});
+  const WriteReviewWidget({super.key, this.clubDetails});
+
+  final GolfClubsRow? clubDetails;
 
   static String routeName = 'WriteReview';
   static String routePath = '/writeReview';
@@ -33,6 +43,21 @@ class _WriteReviewWidgetState extends State<WriteReviewWidget> {
     _model.textController ??= TextEditingController();
     _model.textFieldFocusNode ??= FocusNode();
 
+    if (widget.clubDetails != null) {
+      _model.selectedClub = widget.clubDetails;
+    } else {
+      // If no club passed, query the default / first club
+      GolfClubsTable()
+          .queryRows(queryFn: (q) => q.order('id', ascending: true).limit(1))
+          .then((clubs) {
+            if (clubs.isNotEmpty && mounted && _model.selectedClub == null) {
+              safeSetState(() {
+                _model.selectedClub = clubs.first;
+              });
+            }
+          });
+    }
+
     WidgetsBinding.instance.addPostFrameCallback((_) => safeSetState(() {}));
   }
 
@@ -43,8 +68,170 @@ class _WriteReviewWidgetState extends State<WriteReviewWidget> {
     super.dispose();
   }
 
+  Future<void> _submitReview() async {
+    if (currentUserUid.isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('Please log in to submit a review.'),
+          backgroundColor: FlutterFlowTheme.of(context).error,
+        ),
+      );
+      return;
+    }
+
+    if (_model.isSubmitting) return;
+
+    final club = _model.selectedClub ?? widget.clubDetails;
+    if (club == null) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('Unable to identify golf club. Please try again.'),
+          backgroundColor: FlutterFlowTheme.of(context).error,
+        ),
+      );
+      return;
+    }
+
+    // Validation: Played date is REQUIRED
+    if (_model.datePicked == null) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('Please select the date you played.'),
+          backgroundColor: FlutterFlowTheme.of(context).error,
+        ),
+      );
+      return;
+    }
+
+    // Validation: Would you play here again is REQUIRED
+    if (_model.playToggle == null) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(
+            'Please select whether you would play here again (Yes / No).',
+          ),
+          backgroundColor: FlutterFlowTheme.of(context).error,
+        ),
+      );
+      return;
+    }
+
+    // Validation: Review text is REQUIRED
+    final commentText = _model.textController?.text.trim() ?? '';
+    if (commentText.isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('Please enter your review text.'),
+          backgroundColor: FlutterFlowTheme.of(context).error,
+        ),
+      );
+      return;
+    }
+
+    safeSetState(() => _model.isSubmitting = true);
+
+    try {
+      final playedDateStr = dateTimeFormat("yyyy-MM-dd", _model.datePicked);
+
+      // overall_rating in Supabase is smallint, so send integer to prevent invalid input syntax for smallint
+      final overallRatingInt = (_model.ratingBarValue1 ?? 0.0).round().toInt();
+
+      final fullData = <String, dynamic>{
+        'club_id': club.id,
+        'user_id': currentUserUid,
+        'overall_rating': overallRatingInt,
+        'status': 'pending',
+        'course_condition': (_model.ratingBarValue2 ?? 0.0).toDouble(),
+        'greens': (_model.ratingBarValue3 ?? 0.0).toDouble(),
+        'fairways': (_model.ratingBarValue4 ?? 0.0).toDouble(),
+        'bunkers': (_model.ratingBarValue5 ?? 0.0).toDouble(),
+        'layout': (_model.ratingBarValue6 ?? 0.0).toDouble(),
+        'challenge': (_model.ratingBarValue7 ?? 0.0).toDouble(),
+        'scenery': (_model.ratingBarValue8 ?? 0.0).toDouble(),
+        'clubhouse': (_model.ratingBarValue9 ?? 0.0).toDouble(),
+        'pro_shop': (_model.ratingBarValue10 ?? 0.0).toDouble(),
+        'practice_facilities': (_model.ratingBarValue11 ?? 0.0).toDouble(),
+        'food_and_drink': (_model.ratingBarValue12 ?? 0.0).toDouble(),
+        'changing_rooms': (_model.ratingBarValue13 ?? 0.0).toDouble(),
+        'driving_range': (_model.ratingBarValue14 ?? 0.0).toDouble(),
+        'welcome': (_model.ratingBarValue15 ?? 0.0).toDouble(),
+        'pace_of_play': (_model.ratingBarValue16 ?? 0.0).toDouble(),
+        'value_for_money': (_model.ratingBarValue17 ?? 0.0).toDouble(),
+        'play_again': _model.playToggle ?? true,
+        'comment': commentText,
+        'photos': _model.uploadedPhotoUrls,
+        'played_date': playedDateStr,
+      };
+
+      try {
+        await ClubReviewsTable().insert(fullData);
+      } catch (insertErr) {
+        final errStr = insertErr.toString();
+        // Check constraint error if remote DB constraint hasn't been updated to allow 0
+        if (errStr.contains('club_reviews_overall_rating_check')) {
+          throw Exception(
+            'Your database constraint requires an overall rating between 1 and 5. '
+            'Please run the updated SQL migration in Supabase or select 1 to 5 stars.',
+          );
+        }
+        // Fallback for base schema if migration hasn't been run yet
+        if (errStr.contains('PGRST204') || errStr.contains('column')) {
+          await ClubReviewsTable().insert({
+            'club_id': club.id,
+            'user_id': currentUserUid,
+            'overall_rating': overallRatingInt,
+            'comment': commentText,
+          });
+        } else {
+          rethrow;
+        }
+      }
+
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(
+              'Your review has been submitted and is pending approval!',
+              style: TextStyle(
+                color: FlutterFlowTheme.of(context).secondaryBackground,
+                fontWeight: FontWeight.bold,
+              ),
+            ),
+            duration: Duration(milliseconds: 4000),
+            backgroundColor: FlutterFlowTheme.of(context).secondary,
+          ),
+        );
+
+        context.pushNamed(MyReviewsWidget.routeName);
+      }
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Failed to submit review: $e'),
+            backgroundColor: FlutterFlowTheme.of(context).error,
+          ),
+        );
+      }
+    } finally {
+      if (mounted) {
+        safeSetState(() => _model.isSubmitting = false);
+      }
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
+    final club = _model.selectedClub ?? widget.clubDetails;
+    final clubName = club?.name ?? 'Golf Club';
+    final clubLocation = [
+      if (club?.city != null && club!.city!.isNotEmpty) club.city,
+      if (club?.country != null && club!.country!.isNotEmpty) club.country,
+    ].join(', ');
+    final clubImage =
+        club?.imageUrl ??
+        'https://dimg.dreamflow.cloud/v1/image/luxury%20golf%20course%20green%20with%20sand%20trap';
+
     return GestureDetector(
       onTap: () {
         FocusScope.of(context).unfocus();
@@ -85,27 +272,24 @@ class _WriteReviewWidgetState extends State<WriteReviewWidget> {
                               size: 24.0,
                             ),
                             onPressed: () {
-                              print('IconButton pressed ...');
+                              context.safePop();
                             },
                           ),
                           Text(
                             'Write a Review',
-                            style: FlutterFlowTheme.of(context)
-                                .titleMedium
+                            style: FlutterFlowTheme.of(context).titleMedium
                                 .override(
                                   font: GoogleFonts.plusJakartaSans(
                                     fontWeight: FontWeight.bold,
-                                    fontStyle: FlutterFlowTheme.of(context)
-                                        .titleMedium
-                                        .fontStyle,
+                                    fontStyle: FlutterFlowTheme.of(
+                                      context,
+                                    ).titleMedium.fontStyle,
                                   ),
-                                  color:
-                                      FlutterFlowTheme.of(context).primaryText,
+                                  color: FlutterFlowTheme.of(
+                                    context,
+                                  ).primaryText,
                                   letterSpacing: 0.0,
                                   fontWeight: FontWeight.bold,
-                                  fontStyle: FlutterFlowTheme.of(context)
-                                      .titleMedium
-                                      .fontStyle,
                                   lineHeight: 1.5,
                                 ),
                           ),
@@ -114,41 +298,36 @@ class _WriteReviewWidgetState extends State<WriteReviewWidget> {
                             focusColor: Colors.transparent,
                             hoverColor: Colors.transparent,
                             highlightColor: Colors.transparent,
-                            onTap: () async {
-                              ScaffoldMessenger.of(context).showSnackBar(
-                                SnackBar(
-                                  content: Text(
-                                    'Your review has been sent!',
-                                    style: TextStyle(
-                                      color: FlutterFlowTheme.of(context)
-                                          .secondaryBackground,
+                            onTap: _submitReview,
+                            child: _model.isSubmitting
+                                ? SizedBox(
+                                    width: 20.0,
+                                    height: 20.0,
+                                    child: CircularProgressIndicator(
+                                      strokeWidth: 2.0,
+                                      valueColor: AlwaysStoppedAnimation<Color>(
+                                        FlutterFlowTheme.of(context).primary,
+                                      ),
                                     ),
-                                  ),
-                                  duration: Duration(milliseconds: 4000),
-                                  backgroundColor:
-                                      FlutterFlowTheme.of(context).secondary,
-                                ),
-                              );
-                            },
-                            child: Text(
-                              'Submit',
-                              style: FlutterFlowTheme.of(context)
-                                  .bodyMedium
-                                  .override(
-                                    font: GoogleFonts.inter(
-                                      fontWeight: FontWeight.bold,
-                                      fontStyle: FlutterFlowTheme.of(context)
-                                          .bodyMedium
-                                          .fontStyle,
-                                    ),
-                                    color: FlutterFlowTheme.of(context).primary,
-                                    letterSpacing: 0.0,
-                                    fontWeight: FontWeight.bold,
-                                    fontStyle: FlutterFlowTheme.of(context)
+                                  )
+                                : Text(
+                                    'Submit',
+                                    style: FlutterFlowTheme.of(context)
                                         .bodyMedium
-                                        .fontStyle,
+                                        .override(
+                                          font: GoogleFonts.inter(
+                                            fontWeight: FontWeight.bold,
+                                            fontStyle: FlutterFlowTheme.of(
+                                              context,
+                                            ).bodyMedium.fontStyle,
+                                          ),
+                                          color: FlutterFlowTheme.of(
+                                            context,
+                                          ).primary,
+                                          letterSpacing: 0.0,
+                                          fontWeight: FontWeight.bold,
+                                        ),
                                   ),
-                            ),
                           ),
                         ],
                       ),
@@ -190,10 +369,17 @@ class _WriteReviewWidgetState extends State<WriteReviewWidget> {
                               child: CachedNetworkImage(
                                 fadeInDuration: Duration(milliseconds: 0),
                                 fadeOutDuration: Duration(milliseconds: 0),
-                                imageUrl:
-                                    'https://dimg.dreamflow.cloud/v1/image/luxury%20golf%20course%20green%20with%20sand%20trap',
+                                imageUrl: clubImage,
                                 fit: BoxFit.cover,
                                 alignment: Alignment(0.0, 0.0),
+                                errorWidget: (context, error, stackTrace) =>
+                                    Icon(
+                                      Icons.golf_course,
+                                      color: FlutterFlowTheme.of(
+                                        context,
+                                      ).primary,
+                                      size: 32.0,
+                                    ),
                               ),
                             ),
                           ),
@@ -205,54 +391,45 @@ class _WriteReviewWidgetState extends State<WriteReviewWidget> {
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
                                 Text(
-                                  'St. Andrews Old Course',
+                                  clubName,
                                   style: FlutterFlowTheme.of(context)
                                       .titleMedium
                                       .override(
                                         font: GoogleFonts.plusJakartaSans(
                                           fontWeight: FontWeight.bold,
-                                          fontStyle:
-                                              FlutterFlowTheme.of(context)
-                                                  .titleMedium
-                                                  .fontStyle,
+                                          fontStyle: FlutterFlowTheme.of(
+                                            context,
+                                          ).titleMedium.fontStyle,
                                         ),
-                                        color: FlutterFlowTheme.of(context)
-                                            .primaryText,
+                                        color: FlutterFlowTheme.of(
+                                          context,
+                                        ).primaryText,
                                         letterSpacing: 0.0,
                                         fontWeight: FontWeight.bold,
-                                        fontStyle: FlutterFlowTheme.of(context)
-                                            .titleMedium
-                                            .fontStyle,
                                         lineHeight: 1.5,
                                       ),
                                 ),
-                                Text(
-                                  'St Andrews, Scotland',
-                                  style: FlutterFlowTheme.of(context)
-                                      .bodySmall
-                                      .override(
-                                        font: GoogleFonts.inter(
-                                          fontWeight:
-                                              FlutterFlowTheme.of(context)
-                                                  .bodySmall
-                                                  .fontWeight,
-                                          fontStyle:
-                                              FlutterFlowTheme.of(context)
-                                                  .bodySmall
-                                                  .fontStyle,
+                                if (clubLocation.isNotEmpty)
+                                  Text(
+                                    clubLocation,
+                                    style: FlutterFlowTheme.of(context)
+                                        .bodySmall
+                                        .override(
+                                          font: GoogleFonts.inter(
+                                            fontWeight: FlutterFlowTheme.of(
+                                              context,
+                                            ).bodySmall.fontWeight,
+                                            fontStyle: FlutterFlowTheme.of(
+                                              context,
+                                            ).bodySmall.fontStyle,
+                                          ),
+                                          color: FlutterFlowTheme.of(
+                                            context,
+                                          ).secondaryText,
+                                          letterSpacing: 0.0,
+                                          lineHeight: 1.6,
                                         ),
-                                        color: FlutterFlowTheme.of(context)
-                                            .secondaryText,
-                                        letterSpacing: 0.0,
-                                        fontWeight: FlutterFlowTheme.of(context)
-                                            .bodySmall
-                                            .fontWeight,
-                                        fontStyle: FlutterFlowTheme.of(context)
-                                            .bodySmall
-                                            .fontStyle,
-                                        lineHeight: 1.6,
-                                      ),
-                                ),
+                                  ),
                               ].divide(SizedBox(height: 4.0)),
                             ),
                           ),
@@ -263,21 +440,17 @@ class _WriteReviewWidgetState extends State<WriteReviewWidget> {
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: [
                           Text(
-                            'When did you play?',
-                            style: FlutterFlowTheme.of(context)
-                                .bodyMedium
+                            'When did you play? *',
+                            style: FlutterFlowTheme.of(context).bodyMedium
                                 .override(
                                   font: GoogleFonts.inter(
                                     fontWeight: FontWeight.w600,
-                                    fontStyle: FlutterFlowTheme.of(context)
-                                        .bodyMedium
-                                        .fontStyle,
+                                    fontStyle: FlutterFlowTheme.of(
+                                      context,
+                                    ).bodyMedium.fontStyle,
                                   ),
                                   letterSpacing: 0.0,
                                   fontWeight: FontWeight.w600,
-                                  fontStyle: FlutterFlowTheme.of(context)
-                                      .bodyMedium
-                                      .fontStyle,
                                 ),
                           ),
                           InkWell(
@@ -288,49 +461,48 @@ class _WriteReviewWidgetState extends State<WriteReviewWidget> {
                             onTap: () async {
                               final _datePickedDate = await showDatePicker(
                                 context: context,
-                                initialDate: getCurrentTimestamp,
+                                initialDate:
+                                    _model.datePicked ?? getCurrentTimestamp,
                                 firstDate: DateTime(1900),
                                 lastDate: DateTime(2050),
                                 builder: (context, child) {
                                   return wrapInMaterialDatePickerTheme(
                                     context,
                                     child!,
-                                    headerBackgroundColor:
-                                        FlutterFlowTheme.of(context).primary,
-                                    headerForegroundColor:
-                                        FlutterFlowTheme.of(context).info,
+                                    headerBackgroundColor: FlutterFlowTheme.of(
+                                      context,
+                                    ).primary,
+                                    headerForegroundColor: FlutterFlowTheme.of(
+                                      context,
+                                    ).info,
                                     headerTextStyle:
-                                        FlutterFlowTheme.of(context)
-                                            .headlineLarge
-                                            .override(
-                                              font: GoogleFonts.plusJakartaSans(
-                                                fontWeight: FontWeight.w600,
-                                                fontStyle:
-                                                    FlutterFlowTheme.of(context)
-                                                        .headlineLarge
-                                                        .fontStyle,
-                                              ),
-                                              fontSize: 32.0,
-                                              letterSpacing: 0.0,
-                                              fontWeight: FontWeight.w600,
-                                              fontStyle:
-                                                  FlutterFlowTheme.of(context)
-                                                      .headlineLarge
-                                                      .fontStyle,
-                                            ),
-                                    pickerBackgroundColor:
-                                        FlutterFlowTheme.of(context)
-                                            .secondaryBackground,
-                                    pickerForegroundColor:
-                                        FlutterFlowTheme.of(context)
-                                            .primaryText,
+                                        FlutterFlowTheme.of(
+                                          context,
+                                        ).headlineLarge.override(
+                                          font: GoogleFonts.plusJakartaSans(
+                                            fontWeight: FontWeight.w600,
+                                            fontStyle: FlutterFlowTheme.of(
+                                              context,
+                                            ).headlineLarge.fontStyle,
+                                          ),
+                                          fontSize: 32.0,
+                                          letterSpacing: 0.0,
+                                          fontWeight: FontWeight.w600,
+                                        ),
+                                    pickerBackgroundColor: FlutterFlowTheme.of(
+                                      context,
+                                    ).secondaryBackground,
+                                    pickerForegroundColor: FlutterFlowTheme.of(
+                                      context,
+                                    ).primaryText,
                                     selectedDateTimeBackgroundColor:
                                         FlutterFlowTheme.of(context).primary,
                                     selectedDateTimeForegroundColor:
                                         FlutterFlowTheme.of(context).info,
                                     actionButtonForegroundColor:
-                                        FlutterFlowTheme.of(context)
-                                            .primaryText,
+                                        FlutterFlowTheme.of(
+                                          context,
+                                        ).primaryText,
                                     iconSize: 24.0,
                                   );
                                 },
@@ -344,33 +516,23 @@ class _WriteReviewWidgetState extends State<WriteReviewWidget> {
                                     _datePickedDate.day,
                                   );
                                 });
-                              } else if (_model.datePicked != null) {
-                                safeSetState(() {
-                                  _model.datePicked = getCurrentTimestamp;
-                                });
                               }
                             },
                             child: Text(
-                              'Select',
-                              style: FlutterFlowTheme.of(context)
-                                  .bodyMedium
+                              _model.datePicked != null
+                                  ? dateTimeFormat("yMMMd", _model.datePicked)
+                                  : 'Select date *',
+                              style: FlutterFlowTheme.of(context).bodyMedium
                                   .override(
                                     font: GoogleFonts.inter(
-                                      fontWeight: FlutterFlowTheme.of(context)
-                                          .bodyMedium
-                                          .fontWeight,
-                                      fontStyle: FlutterFlowTheme.of(context)
-                                          .bodyMedium
-                                          .fontStyle,
+                                      fontWeight: FontWeight.w600,
+                                      fontStyle: FlutterFlowTheme.of(
+                                        context,
+                                      ).bodyMedium.fontStyle,
                                     ),
                                     color: FlutterFlowTheme.of(context).primary,
                                     letterSpacing: 0.0,
-                                    fontWeight: FlutterFlowTheme.of(context)
-                                        .bodyMedium
-                                        .fontWeight,
-                                    fontStyle: FlutterFlowTheme.of(context)
-                                        .bodyMedium
-                                        .fontStyle,
+                                    fontWeight: FontWeight.w600,
                                     decoration: TextDecoration.underline,
                                   ),
                             ),
@@ -387,38 +549,37 @@ class _WriteReviewWidgetState extends State<WriteReviewWidget> {
                         children: [
                           Text(
                             'Overall Rating',
-                            style: FlutterFlowTheme.of(context)
-                                .titleSmall
+                            style: FlutterFlowTheme.of(context).titleSmall
                                 .override(
                                   font: GoogleFonts.plusJakartaSans(
                                     fontWeight: FontWeight.bold,
-                                    fontStyle: FlutterFlowTheme.of(context)
-                                        .titleSmall
-                                        .fontStyle,
+                                    fontStyle: FlutterFlowTheme.of(
+                                      context,
+                                    ).titleSmall.fontStyle,
                                   ),
-                                  color:
-                                      FlutterFlowTheme.of(context).primaryText,
+                                  color: FlutterFlowTheme.of(
+                                    context,
+                                  ).primaryText,
                                   letterSpacing: 0.0,
                                   fontWeight: FontWeight.bold,
-                                  fontStyle: FlutterFlowTheme.of(context)
-                                      .titleSmall
-                                      .fontStyle,
                                   lineHeight: 1.5,
                                 ),
                           ),
                           RatingBar.builder(
                             onRatingUpdate: (newValue) => safeSetState(
-                                () => _model.ratingBarValue1 = newValue),
+                              () => _model.ratingBarValue1 = newValue,
+                            ),
                             itemBuilder: (context, index) => Icon(
                               Icons.star_rounded,
                               color: FlutterFlowTheme.of(context).primary,
                             ),
                             direction: Axis.horizontal,
-                            initialRating: _model.ratingBarValue1 ??= 2.0,
+                            initialRating: _model.ratingBarValue1 ??= 0.0,
                             unratedColor: FlutterFlowTheme.of(context).accent1,
                             itemCount: 5,
                             itemSize: 24.0,
                             glowColor: FlutterFlowTheme.of(context).primary,
+                            minRating: 0.0,
                           ),
                         ],
                       ),
@@ -436,67 +597,66 @@ class _WriteReviewWidgetState extends State<WriteReviewWidget> {
                               ),
                               Text(
                                 'COURSE',
-                                style: FlutterFlowTheme.of(context)
-                                    .bodyMedium
+                                style: FlutterFlowTheme.of(context).bodyMedium
                                     .override(
                                       font: GoogleFonts.inter(
                                         fontWeight: FontWeight.w600,
-                                        fontStyle: FlutterFlowTheme.of(context)
-                                            .bodyMedium
-                                            .fontStyle,
+                                        fontStyle: FlutterFlowTheme.of(
+                                          context,
+                                        ).bodyMedium.fontStyle,
                                       ),
                                       fontSize: 12.0,
                                       letterSpacing: 0.0,
                                       fontWeight: FontWeight.w600,
-                                      fontStyle: FlutterFlowTheme.of(context)
-                                          .bodyMedium
-                                          .fontStyle,
                                     ),
                               ),
                             ].divide(SizedBox(width: 6.0)),
                           ),
                           Padding(
                             padding: EdgeInsetsDirectional.fromSTEB(
-                                0.0, 4.0, 0.0, 0.0),
+                              0.0,
+                              4.0,
+                              0.0,
+                              0.0,
+                            ),
                             child: Row(
                               mainAxisSize: MainAxisSize.max,
                               mainAxisAlignment: MainAxisAlignment.spaceBetween,
                               children: [
                                 Text(
                                   'Course condition',
-                                  style: FlutterFlowTheme.of(context)
-                                      .bodyMedium
+                                  style: FlutterFlowTheme.of(context).bodyMedium
                                       .override(
                                         font: GoogleFonts.inter(
                                           fontWeight: FontWeight.w600,
-                                          fontStyle:
-                                              FlutterFlowTheme.of(context)
-                                                  .bodyMedium
-                                                  .fontStyle,
+                                          fontStyle: FlutterFlowTheme.of(
+                                            context,
+                                          ).bodyMedium.fontStyle,
                                         ),
                                         fontSize: 12.0,
                                         letterSpacing: 0.0,
                                         fontWeight: FontWeight.w600,
-                                        fontStyle: FlutterFlowTheme.of(context)
-                                            .bodyMedium
-                                            .fontStyle,
                                       ),
                                 ),
                                 RatingBar.builder(
                                   onRatingUpdate: (newValue) => safeSetState(
-                                      () => _model.ratingBarValue2 = newValue),
+                                    () => _model.ratingBarValue2 = newValue,
+                                  ),
                                   itemBuilder: (context, index) => Icon(
                                     Icons.star_rounded,
                                     color: FlutterFlowTheme.of(context).primary,
                                   ),
                                   direction: Axis.horizontal,
                                   initialRating: _model.ratingBarValue2 ??= 0.0,
-                                  unratedColor:
-                                      FlutterFlowTheme.of(context).accent1,
+                                  unratedColor: FlutterFlowTheme.of(
+                                    context,
+                                  ).accent1,
                                   itemCount: 5,
                                   itemSize: 18.0,
-                                  glowColor:
-                                      FlutterFlowTheme.of(context).primary,
+                                  glowColor: FlutterFlowTheme.of(
+                                    context,
+                                  ).primary,
+                                  minRating: 0.0,
                                 ),
                               ],
                             ),
@@ -507,37 +667,36 @@ class _WriteReviewWidgetState extends State<WriteReviewWidget> {
                             children: [
                               Text(
                                 'Greens',
-                                style: FlutterFlowTheme.of(context)
-                                    .bodyMedium
+                                style: FlutterFlowTheme.of(context).bodyMedium
                                     .override(
                                       font: GoogleFonts.inter(
                                         fontWeight: FontWeight.w600,
-                                        fontStyle: FlutterFlowTheme.of(context)
-                                            .bodyMedium
-                                            .fontStyle,
+                                        fontStyle: FlutterFlowTheme.of(
+                                          context,
+                                        ).bodyMedium.fontStyle,
                                       ),
                                       fontSize: 12.0,
                                       letterSpacing: 0.0,
                                       fontWeight: FontWeight.w600,
-                                      fontStyle: FlutterFlowTheme.of(context)
-                                          .bodyMedium
-                                          .fontStyle,
                                     ),
                               ),
                               RatingBar.builder(
                                 onRatingUpdate: (newValue) => safeSetState(
-                                    () => _model.ratingBarValue3 = newValue),
+                                  () => _model.ratingBarValue3 = newValue,
+                                ),
                                 itemBuilder: (context, index) => Icon(
                                   Icons.star_rounded,
                                   color: FlutterFlowTheme.of(context).primary,
                                 ),
                                 direction: Axis.horizontal,
                                 initialRating: _model.ratingBarValue3 ??= 0.0,
-                                unratedColor:
-                                    FlutterFlowTheme.of(context).accent1,
+                                unratedColor: FlutterFlowTheme.of(
+                                  context,
+                                ).accent1,
                                 itemCount: 5,
                                 itemSize: 18.0,
                                 glowColor: FlutterFlowTheme.of(context).primary,
+                                minRating: 0.0,
                               ),
                             ],
                           ),
@@ -547,37 +706,36 @@ class _WriteReviewWidgetState extends State<WriteReviewWidget> {
                             children: [
                               Text(
                                 'Fairways',
-                                style: FlutterFlowTheme.of(context)
-                                    .bodyMedium
+                                style: FlutterFlowTheme.of(context).bodyMedium
                                     .override(
                                       font: GoogleFonts.inter(
                                         fontWeight: FontWeight.w600,
-                                        fontStyle: FlutterFlowTheme.of(context)
-                                            .bodyMedium
-                                            .fontStyle,
+                                        fontStyle: FlutterFlowTheme.of(
+                                          context,
+                                        ).bodyMedium.fontStyle,
                                       ),
                                       fontSize: 12.0,
                                       letterSpacing: 0.0,
                                       fontWeight: FontWeight.w600,
-                                      fontStyle: FlutterFlowTheme.of(context)
-                                          .bodyMedium
-                                          .fontStyle,
                                     ),
                               ),
                               RatingBar.builder(
                                 onRatingUpdate: (newValue) => safeSetState(
-                                    () => _model.ratingBarValue4 = newValue),
+                                  () => _model.ratingBarValue4 = newValue,
+                                ),
                                 itemBuilder: (context, index) => Icon(
                                   Icons.star_rounded,
                                   color: FlutterFlowTheme.of(context).primary,
                                 ),
                                 direction: Axis.horizontal,
-                                initialRating: _model.ratingBarValue4 ??= 3.0,
-                                unratedColor:
-                                    FlutterFlowTheme.of(context).accent1,
+                                initialRating: _model.ratingBarValue4 ??= 0.0,
+                                unratedColor: FlutterFlowTheme.of(
+                                  context,
+                                ).accent1,
                                 itemCount: 5,
                                 itemSize: 18.0,
                                 glowColor: FlutterFlowTheme.of(context).primary,
+                                minRating: 0.0,
                               ),
                             ],
                           ),
@@ -587,37 +745,36 @@ class _WriteReviewWidgetState extends State<WriteReviewWidget> {
                             children: [
                               Text(
                                 'Bunkers',
-                                style: FlutterFlowTheme.of(context)
-                                    .bodyMedium
+                                style: FlutterFlowTheme.of(context).bodyMedium
                                     .override(
                                       font: GoogleFonts.inter(
                                         fontWeight: FontWeight.w600,
-                                        fontStyle: FlutterFlowTheme.of(context)
-                                            .bodyMedium
-                                            .fontStyle,
+                                        fontStyle: FlutterFlowTheme.of(
+                                          context,
+                                        ).bodyMedium.fontStyle,
                                       ),
                                       fontSize: 12.0,
                                       letterSpacing: 0.0,
                                       fontWeight: FontWeight.w600,
-                                      fontStyle: FlutterFlowTheme.of(context)
-                                          .bodyMedium
-                                          .fontStyle,
                                     ),
                               ),
                               RatingBar.builder(
                                 onRatingUpdate: (newValue) => safeSetState(
-                                    () => _model.ratingBarValue5 = newValue),
+                                  () => _model.ratingBarValue5 = newValue,
+                                ),
                                 itemBuilder: (context, index) => Icon(
                                   Icons.star_rounded,
                                   color: FlutterFlowTheme.of(context).primary,
                                 ),
                                 direction: Axis.horizontal,
-                                initialRating: _model.ratingBarValue5 ??= 3.0,
-                                unratedColor:
-                                    FlutterFlowTheme.of(context).accent1,
+                                initialRating: _model.ratingBarValue5 ??= 0.0,
+                                unratedColor: FlutterFlowTheme.of(
+                                  context,
+                                ).accent1,
                                 itemCount: 5,
                                 itemSize: 18.0,
                                 glowColor: FlutterFlowTheme.of(context).primary,
+                                minRating: 0.0,
                               ),
                             ],
                           ),
@@ -627,37 +784,36 @@ class _WriteReviewWidgetState extends State<WriteReviewWidget> {
                             children: [
                               Text(
                                 'Layout',
-                                style: FlutterFlowTheme.of(context)
-                                    .bodyMedium
+                                style: FlutterFlowTheme.of(context).bodyMedium
                                     .override(
                                       font: GoogleFonts.inter(
                                         fontWeight: FontWeight.w600,
-                                        fontStyle: FlutterFlowTheme.of(context)
-                                            .bodyMedium
-                                            .fontStyle,
+                                        fontStyle: FlutterFlowTheme.of(
+                                          context,
+                                        ).bodyMedium.fontStyle,
                                       ),
                                       fontSize: 12.0,
                                       letterSpacing: 0.0,
                                       fontWeight: FontWeight.w600,
-                                      fontStyle: FlutterFlowTheme.of(context)
-                                          .bodyMedium
-                                          .fontStyle,
                                     ),
                               ),
                               RatingBar.builder(
                                 onRatingUpdate: (newValue) => safeSetState(
-                                    () => _model.ratingBarValue6 = newValue),
+                                  () => _model.ratingBarValue6 = newValue,
+                                ),
                                 itemBuilder: (context, index) => Icon(
                                   Icons.star_rounded,
                                   color: FlutterFlowTheme.of(context).primary,
                                 ),
                                 direction: Axis.horizontal,
-                                initialRating: _model.ratingBarValue6 ??= 3.0,
-                                unratedColor:
-                                    FlutterFlowTheme.of(context).accent1,
+                                initialRating: _model.ratingBarValue6 ??= 0.0,
+                                unratedColor: FlutterFlowTheme.of(
+                                  context,
+                                ).accent1,
                                 itemCount: 5,
                                 itemSize: 18.0,
                                 glowColor: FlutterFlowTheme.of(context).primary,
+                                minRating: 0.0,
                               ),
                             ],
                           ),
@@ -667,37 +823,36 @@ class _WriteReviewWidgetState extends State<WriteReviewWidget> {
                             children: [
                               Text(
                                 'Challenge',
-                                style: FlutterFlowTheme.of(context)
-                                    .bodyMedium
+                                style: FlutterFlowTheme.of(context).bodyMedium
                                     .override(
                                       font: GoogleFonts.inter(
                                         fontWeight: FontWeight.w600,
-                                        fontStyle: FlutterFlowTheme.of(context)
-                                            .bodyMedium
-                                            .fontStyle,
+                                        fontStyle: FlutterFlowTheme.of(
+                                          context,
+                                        ).bodyMedium.fontStyle,
                                       ),
                                       fontSize: 12.0,
                                       letterSpacing: 0.0,
                                       fontWeight: FontWeight.w600,
-                                      fontStyle: FlutterFlowTheme.of(context)
-                                          .bodyMedium
-                                          .fontStyle,
                                     ),
                               ),
                               RatingBar.builder(
                                 onRatingUpdate: (newValue) => safeSetState(
-                                    () => _model.ratingBarValue7 = newValue),
+                                  () => _model.ratingBarValue7 = newValue,
+                                ),
                                 itemBuilder: (context, index) => Icon(
                                   Icons.star_rounded,
                                   color: FlutterFlowTheme.of(context).primary,
                                 ),
                                 direction: Axis.horizontal,
-                                initialRating: _model.ratingBarValue7 ??= 3.0,
-                                unratedColor:
-                                    FlutterFlowTheme.of(context).accent1,
+                                initialRating: _model.ratingBarValue7 ??= 0.0,
+                                unratedColor: FlutterFlowTheme.of(
+                                  context,
+                                ).accent1,
                                 itemCount: 5,
                                 itemSize: 18.0,
                                 glowColor: FlutterFlowTheme.of(context).primary,
+                                minRating: 0.0,
                               ),
                             ],
                           ),
@@ -707,37 +862,36 @@ class _WriteReviewWidgetState extends State<WriteReviewWidget> {
                             children: [
                               Text(
                                 'Scenery',
-                                style: FlutterFlowTheme.of(context)
-                                    .bodyMedium
+                                style: FlutterFlowTheme.of(context).bodyMedium
                                     .override(
                                       font: GoogleFonts.inter(
                                         fontWeight: FontWeight.w600,
-                                        fontStyle: FlutterFlowTheme.of(context)
-                                            .bodyMedium
-                                            .fontStyle,
+                                        fontStyle: FlutterFlowTheme.of(
+                                          context,
+                                        ).bodyMedium.fontStyle,
                                       ),
                                       fontSize: 12.0,
                                       letterSpacing: 0.0,
                                       fontWeight: FontWeight.w600,
-                                      fontStyle: FlutterFlowTheme.of(context)
-                                          .bodyMedium
-                                          .fontStyle,
                                     ),
                               ),
                               RatingBar.builder(
                                 onRatingUpdate: (newValue) => safeSetState(
-                                    () => _model.ratingBarValue8 = newValue),
+                                  () => _model.ratingBarValue8 = newValue,
+                                ),
                                 itemBuilder: (context, index) => Icon(
                                   Icons.star_rounded,
                                   color: FlutterFlowTheme.of(context).primary,
                                 ),
                                 direction: Axis.horizontal,
-                                initialRating: _model.ratingBarValue8 ??= 3.0,
-                                unratedColor:
-                                    FlutterFlowTheme.of(context).accent1,
+                                initialRating: _model.ratingBarValue8 ??= 0.0,
+                                unratedColor: FlutterFlowTheme.of(
+                                  context,
+                                ).accent1,
                                 itemCount: 5,
                                 itemSize: 18.0,
                                 glowColor: FlutterFlowTheme.of(context).primary,
+                                minRating: 0.0,
                               ),
                             ],
                           ),
@@ -761,67 +915,66 @@ class _WriteReviewWidgetState extends State<WriteReviewWidget> {
                               ),
                               Text(
                                 'FACILITIES',
-                                style: FlutterFlowTheme.of(context)
-                                    .bodyMedium
+                                style: FlutterFlowTheme.of(context).bodyMedium
                                     .override(
                                       font: GoogleFonts.inter(
                                         fontWeight: FontWeight.w600,
-                                        fontStyle: FlutterFlowTheme.of(context)
-                                            .bodyMedium
-                                            .fontStyle,
+                                        fontStyle: FlutterFlowTheme.of(
+                                          context,
+                                        ).bodyMedium.fontStyle,
                                       ),
                                       fontSize: 12.0,
                                       letterSpacing: 0.0,
                                       fontWeight: FontWeight.w600,
-                                      fontStyle: FlutterFlowTheme.of(context)
-                                          .bodyMedium
-                                          .fontStyle,
                                     ),
                               ),
                             ].divide(SizedBox(width: 6.0)),
                           ),
                           Padding(
                             padding: EdgeInsetsDirectional.fromSTEB(
-                                0.0, 4.0, 0.0, 0.0),
+                              0.0,
+                              4.0,
+                              0.0,
+                              0.0,
+                            ),
                             child: Row(
                               mainAxisSize: MainAxisSize.max,
                               mainAxisAlignment: MainAxisAlignment.spaceBetween,
                               children: [
                                 Text(
                                   'Clubhouse',
-                                  style: FlutterFlowTheme.of(context)
-                                      .bodyMedium
+                                  style: FlutterFlowTheme.of(context).bodyMedium
                                       .override(
                                         font: GoogleFonts.inter(
                                           fontWeight: FontWeight.w600,
-                                          fontStyle:
-                                              FlutterFlowTheme.of(context)
-                                                  .bodyMedium
-                                                  .fontStyle,
+                                          fontStyle: FlutterFlowTheme.of(
+                                            context,
+                                          ).bodyMedium.fontStyle,
                                         ),
                                         fontSize: 12.0,
                                         letterSpacing: 0.0,
                                         fontWeight: FontWeight.w600,
-                                        fontStyle: FlutterFlowTheme.of(context)
-                                            .bodyMedium
-                                            .fontStyle,
                                       ),
                                 ),
                                 RatingBar.builder(
                                   onRatingUpdate: (newValue) => safeSetState(
-                                      () => _model.ratingBarValue9 = newValue),
+                                    () => _model.ratingBarValue9 = newValue,
+                                  ),
                                   itemBuilder: (context, index) => Icon(
                                     Icons.star_rounded,
                                     color: FlutterFlowTheme.of(context).primary,
                                   ),
                                   direction: Axis.horizontal,
-                                  initialRating: _model.ratingBarValue9 ??= 3.0,
-                                  unratedColor:
-                                      FlutterFlowTheme.of(context).accent1,
+                                  initialRating: _model.ratingBarValue9 ??= 0.0,
+                                  unratedColor: FlutterFlowTheme.of(
+                                    context,
+                                  ).accent1,
                                   itemCount: 5,
                                   itemSize: 18.0,
-                                  glowColor:
-                                      FlutterFlowTheme.of(context).primary,
+                                  glowColor: FlutterFlowTheme.of(
+                                    context,
+                                  ).primary,
+                                  minRating: 0.0,
                                 ),
                               ],
                             ),
@@ -832,37 +985,36 @@ class _WriteReviewWidgetState extends State<WriteReviewWidget> {
                             children: [
                               Text(
                                 'Pro shop',
-                                style: FlutterFlowTheme.of(context)
-                                    .bodyMedium
+                                style: FlutterFlowTheme.of(context).bodyMedium
                                     .override(
                                       font: GoogleFonts.inter(
                                         fontWeight: FontWeight.w600,
-                                        fontStyle: FlutterFlowTheme.of(context)
-                                            .bodyMedium
-                                            .fontStyle,
+                                        fontStyle: FlutterFlowTheme.of(
+                                          context,
+                                        ).bodyMedium.fontStyle,
                                       ),
                                       fontSize: 12.0,
                                       letterSpacing: 0.0,
                                       fontWeight: FontWeight.w600,
-                                      fontStyle: FlutterFlowTheme.of(context)
-                                          .bodyMedium
-                                          .fontStyle,
                                     ),
                               ),
                               RatingBar.builder(
                                 onRatingUpdate: (newValue) => safeSetState(
-                                    () => _model.ratingBarValue10 = newValue),
+                                  () => _model.ratingBarValue10 = newValue,
+                                ),
                                 itemBuilder: (context, index) => Icon(
                                   Icons.star_rounded,
                                   color: FlutterFlowTheme.of(context).primary,
                                 ),
                                 direction: Axis.horizontal,
-                                initialRating: _model.ratingBarValue10 ??= 3.0,
-                                unratedColor:
-                                    FlutterFlowTheme.of(context).accent1,
+                                initialRating: _model.ratingBarValue10 ??= 0.0,
+                                unratedColor: FlutterFlowTheme.of(
+                                  context,
+                                ).accent1,
                                 itemCount: 5,
                                 itemSize: 18.0,
                                 glowColor: FlutterFlowTheme.of(context).primary,
+                                minRating: 0.0,
                               ),
                             ],
                           ),
@@ -872,37 +1024,36 @@ class _WriteReviewWidgetState extends State<WriteReviewWidget> {
                             children: [
                               Text(
                                 'Practice facilities',
-                                style: FlutterFlowTheme.of(context)
-                                    .bodyMedium
+                                style: FlutterFlowTheme.of(context).bodyMedium
                                     .override(
                                       font: GoogleFonts.inter(
                                         fontWeight: FontWeight.w600,
-                                        fontStyle: FlutterFlowTheme.of(context)
-                                            .bodyMedium
-                                            .fontStyle,
+                                        fontStyle: FlutterFlowTheme.of(
+                                          context,
+                                        ).bodyMedium.fontStyle,
                                       ),
                                       fontSize: 12.0,
                                       letterSpacing: 0.0,
                                       fontWeight: FontWeight.w600,
-                                      fontStyle: FlutterFlowTheme.of(context)
-                                          .bodyMedium
-                                          .fontStyle,
                                     ),
                               ),
                               RatingBar.builder(
                                 onRatingUpdate: (newValue) => safeSetState(
-                                    () => _model.ratingBarValue11 = newValue),
+                                  () => _model.ratingBarValue11 = newValue,
+                                ),
                                 itemBuilder: (context, index) => Icon(
                                   Icons.star_rounded,
                                   color: FlutterFlowTheme.of(context).primary,
                                 ),
                                 direction: Axis.horizontal,
-                                initialRating: _model.ratingBarValue11 ??= 3.0,
-                                unratedColor:
-                                    FlutterFlowTheme.of(context).accent1,
+                                initialRating: _model.ratingBarValue11 ??= 0.0,
+                                unratedColor: FlutterFlowTheme.of(
+                                  context,
+                                ).accent1,
                                 itemCount: 5,
                                 itemSize: 18.0,
                                 glowColor: FlutterFlowTheme.of(context).primary,
+                                minRating: 0.0,
                               ),
                             ],
                           ),
@@ -912,37 +1063,36 @@ class _WriteReviewWidgetState extends State<WriteReviewWidget> {
                             children: [
                               Text(
                                 'Food & drink',
-                                style: FlutterFlowTheme.of(context)
-                                    .bodyMedium
+                                style: FlutterFlowTheme.of(context).bodyMedium
                                     .override(
                                       font: GoogleFonts.inter(
                                         fontWeight: FontWeight.w600,
-                                        fontStyle: FlutterFlowTheme.of(context)
-                                            .bodyMedium
-                                            .fontStyle,
+                                        fontStyle: FlutterFlowTheme.of(
+                                          context,
+                                        ).bodyMedium.fontStyle,
                                       ),
                                       fontSize: 12.0,
                                       letterSpacing: 0.0,
                                       fontWeight: FontWeight.w600,
-                                      fontStyle: FlutterFlowTheme.of(context)
-                                          .bodyMedium
-                                          .fontStyle,
                                     ),
                               ),
                               RatingBar.builder(
                                 onRatingUpdate: (newValue) => safeSetState(
-                                    () => _model.ratingBarValue12 = newValue),
+                                  () => _model.ratingBarValue12 = newValue,
+                                ),
                                 itemBuilder: (context, index) => Icon(
                                   Icons.star_rounded,
                                   color: FlutterFlowTheme.of(context).primary,
                                 ),
                                 direction: Axis.horizontal,
-                                initialRating: _model.ratingBarValue12 ??= 3.0,
-                                unratedColor:
-                                    FlutterFlowTheme.of(context).accent1,
+                                initialRating: _model.ratingBarValue12 ??= 0.0,
+                                unratedColor: FlutterFlowTheme.of(
+                                  context,
+                                ).accent1,
                                 itemCount: 5,
                                 itemSize: 18.0,
                                 glowColor: FlutterFlowTheme.of(context).primary,
+                                minRating: 0.0,
                               ),
                             ],
                           ),
@@ -952,37 +1102,36 @@ class _WriteReviewWidgetState extends State<WriteReviewWidget> {
                             children: [
                               Text(
                                 'Changing rooms',
-                                style: FlutterFlowTheme.of(context)
-                                    .bodyMedium
+                                style: FlutterFlowTheme.of(context).bodyMedium
                                     .override(
                                       font: GoogleFonts.inter(
                                         fontWeight: FontWeight.w600,
-                                        fontStyle: FlutterFlowTheme.of(context)
-                                            .bodyMedium
-                                            .fontStyle,
+                                        fontStyle: FlutterFlowTheme.of(
+                                          context,
+                                        ).bodyMedium.fontStyle,
                                       ),
                                       fontSize: 12.0,
                                       letterSpacing: 0.0,
                                       fontWeight: FontWeight.w600,
-                                      fontStyle: FlutterFlowTheme.of(context)
-                                          .bodyMedium
-                                          .fontStyle,
                                     ),
                               ),
                               RatingBar.builder(
                                 onRatingUpdate: (newValue) => safeSetState(
-                                    () => _model.ratingBarValue13 = newValue),
+                                  () => _model.ratingBarValue13 = newValue,
+                                ),
                                 itemBuilder: (context, index) => Icon(
                                   Icons.star_rounded,
                                   color: FlutterFlowTheme.of(context).primary,
                                 ),
                                 direction: Axis.horizontal,
-                                initialRating: _model.ratingBarValue13 ??= 3.0,
-                                unratedColor:
-                                    FlutterFlowTheme.of(context).accent1,
+                                initialRating: _model.ratingBarValue13 ??= 0.0,
+                                unratedColor: FlutterFlowTheme.of(
+                                  context,
+                                ).accent1,
                                 itemCount: 5,
                                 itemSize: 18.0,
                                 glowColor: FlutterFlowTheme.of(context).primary,
+                                minRating: 0.0,
                               ),
                             ],
                           ),
@@ -992,37 +1141,36 @@ class _WriteReviewWidgetState extends State<WriteReviewWidget> {
                             children: [
                               Text(
                                 'Driving range',
-                                style: FlutterFlowTheme.of(context)
-                                    .bodyMedium
+                                style: FlutterFlowTheme.of(context).bodyMedium
                                     .override(
                                       font: GoogleFonts.inter(
                                         fontWeight: FontWeight.w600,
-                                        fontStyle: FlutterFlowTheme.of(context)
-                                            .bodyMedium
-                                            .fontStyle,
+                                        fontStyle: FlutterFlowTheme.of(
+                                          context,
+                                        ).bodyMedium.fontStyle,
                                       ),
                                       fontSize: 12.0,
                                       letterSpacing: 0.0,
                                       fontWeight: FontWeight.w600,
-                                      fontStyle: FlutterFlowTheme.of(context)
-                                          .bodyMedium
-                                          .fontStyle,
                                     ),
                               ),
                               RatingBar.builder(
                                 onRatingUpdate: (newValue) => safeSetState(
-                                    () => _model.ratingBarValue14 = newValue),
+                                  () => _model.ratingBarValue14 = newValue,
+                                ),
                                 itemBuilder: (context, index) => Icon(
                                   Icons.star_rounded,
                                   color: FlutterFlowTheme.of(context).primary,
                                 ),
                                 direction: Axis.horizontal,
-                                initialRating: _model.ratingBarValue14 ??= 3.0,
-                                unratedColor:
-                                    FlutterFlowTheme.of(context).accent1,
+                                initialRating: _model.ratingBarValue14 ??= 0.0,
+                                unratedColor: FlutterFlowTheme.of(
+                                  context,
+                                ).accent1,
                                 itemCount: 5,
                                 itemSize: 18.0,
                                 glowColor: FlutterFlowTheme.of(context).primary,
+                                minRating: 0.0,
                               ),
                             ],
                           ),
@@ -1046,68 +1194,67 @@ class _WriteReviewWidgetState extends State<WriteReviewWidget> {
                               ),
                               Text(
                                 'EXPERIENCE',
-                                style: FlutterFlowTheme.of(context)
-                                    .bodyMedium
+                                style: FlutterFlowTheme.of(context).bodyMedium
                                     .override(
                                       font: GoogleFonts.inter(
                                         fontWeight: FontWeight.w600,
-                                        fontStyle: FlutterFlowTheme.of(context)
-                                            .bodyMedium
-                                            .fontStyle,
+                                        fontStyle: FlutterFlowTheme.of(
+                                          context,
+                                        ).bodyMedium.fontStyle,
                                       ),
                                       fontSize: 12.0,
                                       letterSpacing: 0.0,
                                       fontWeight: FontWeight.w600,
-                                      fontStyle: FlutterFlowTheme.of(context)
-                                          .bodyMedium
-                                          .fontStyle,
                                     ),
                               ),
                             ].divide(SizedBox(width: 6.0)),
                           ),
                           Padding(
                             padding: EdgeInsetsDirectional.fromSTEB(
-                                0.0, 4.0, 0.0, 0.0),
+                              0.0,
+                              4.0,
+                              0.0,
+                              0.0,
+                            ),
                             child: Row(
                               mainAxisSize: MainAxisSize.max,
                               mainAxisAlignment: MainAxisAlignment.spaceBetween,
                               children: [
                                 Text(
                                   'Welcome',
-                                  style: FlutterFlowTheme.of(context)
-                                      .bodyMedium
+                                  style: FlutterFlowTheme.of(context).bodyMedium
                                       .override(
                                         font: GoogleFonts.inter(
                                           fontWeight: FontWeight.w600,
-                                          fontStyle:
-                                              FlutterFlowTheme.of(context)
-                                                  .bodyMedium
-                                                  .fontStyle,
+                                          fontStyle: FlutterFlowTheme.of(
+                                            context,
+                                          ).bodyMedium.fontStyle,
                                         ),
                                         fontSize: 12.0,
                                         letterSpacing: 0.0,
                                         fontWeight: FontWeight.w600,
-                                        fontStyle: FlutterFlowTheme.of(context)
-                                            .bodyMedium
-                                            .fontStyle,
                                       ),
                                 ),
                                 RatingBar.builder(
                                   onRatingUpdate: (newValue) => safeSetState(
-                                      () => _model.ratingBarValue15 = newValue),
+                                    () => _model.ratingBarValue15 = newValue,
+                                  ),
                                   itemBuilder: (context, index) => Icon(
                                     Icons.star_rounded,
                                     color: FlutterFlowTheme.of(context).primary,
                                   ),
                                   direction: Axis.horizontal,
                                   initialRating: _model.ratingBarValue15 ??=
-                                      3.0,
-                                  unratedColor:
-                                      FlutterFlowTheme.of(context).accent1,
+                                      0.0,
+                                  unratedColor: FlutterFlowTheme.of(
+                                    context,
+                                  ).accent1,
                                   itemCount: 5,
                                   itemSize: 18.0,
-                                  glowColor:
-                                      FlutterFlowTheme.of(context).primary,
+                                  glowColor: FlutterFlowTheme.of(
+                                    context,
+                                  ).primary,
+                                  minRating: 0.0,
                                 ),
                               ],
                             ),
@@ -1118,37 +1265,36 @@ class _WriteReviewWidgetState extends State<WriteReviewWidget> {
                             children: [
                               Text(
                                 'Pace of play',
-                                style: FlutterFlowTheme.of(context)
-                                    .bodyMedium
+                                style: FlutterFlowTheme.of(context).bodyMedium
                                     .override(
                                       font: GoogleFonts.inter(
                                         fontWeight: FontWeight.w600,
-                                        fontStyle: FlutterFlowTheme.of(context)
-                                            .bodyMedium
-                                            .fontStyle,
+                                        fontStyle: FlutterFlowTheme.of(
+                                          context,
+                                        ).bodyMedium.fontStyle,
                                       ),
                                       fontSize: 12.0,
                                       letterSpacing: 0.0,
                                       fontWeight: FontWeight.w600,
-                                      fontStyle: FlutterFlowTheme.of(context)
-                                          .bodyMedium
-                                          .fontStyle,
                                     ),
                               ),
                               RatingBar.builder(
                                 onRatingUpdate: (newValue) => safeSetState(
-                                    () => _model.ratingBarValue16 = newValue),
+                                  () => _model.ratingBarValue16 = newValue,
+                                ),
                                 itemBuilder: (context, index) => Icon(
                                   Icons.star_rounded,
                                   color: FlutterFlowTheme.of(context).primary,
                                 ),
                                 direction: Axis.horizontal,
-                                initialRating: _model.ratingBarValue16 ??= 3.0,
-                                unratedColor:
-                                    FlutterFlowTheme.of(context).accent1,
+                                initialRating: _model.ratingBarValue16 ??= 0.0,
+                                unratedColor: FlutterFlowTheme.of(
+                                  context,
+                                ).accent1,
                                 itemCount: 5,
                                 itemSize: 18.0,
                                 glowColor: FlutterFlowTheme.of(context).primary,
+                                minRating: 0.0,
                               ),
                             ],
                           ),
@@ -1158,37 +1304,36 @@ class _WriteReviewWidgetState extends State<WriteReviewWidget> {
                             children: [
                               Text(
                                 'Value for money',
-                                style: FlutterFlowTheme.of(context)
-                                    .bodyMedium
+                                style: FlutterFlowTheme.of(context).bodyMedium
                                     .override(
                                       font: GoogleFonts.inter(
                                         fontWeight: FontWeight.w600,
-                                        fontStyle: FlutterFlowTheme.of(context)
-                                            .bodyMedium
-                                            .fontStyle,
+                                        fontStyle: FlutterFlowTheme.of(
+                                          context,
+                                        ).bodyMedium.fontStyle,
                                       ),
                                       fontSize: 12.0,
                                       letterSpacing: 0.0,
                                       fontWeight: FontWeight.w600,
-                                      fontStyle: FlutterFlowTheme.of(context)
-                                          .bodyMedium
-                                          .fontStyle,
                                     ),
                               ),
                               RatingBar.builder(
                                 onRatingUpdate: (newValue) => safeSetState(
-                                    () => _model.ratingBarValue17 = newValue),
+                                  () => _model.ratingBarValue17 = newValue,
+                                ),
                                 itemBuilder: (context, index) => Icon(
                                   Icons.star_rounded,
                                   color: FlutterFlowTheme.of(context).primary,
                                 ),
                                 direction: Axis.horizontal,
-                                initialRating: _model.ratingBarValue17 ??= 3.0,
-                                unratedColor:
-                                    FlutterFlowTheme.of(context).accent1,
+                                initialRating: _model.ratingBarValue17 ??= 0.0,
+                                unratedColor: FlutterFlowTheme.of(
+                                  context,
+                                ).accent1,
                                 itemCount: 5,
                                 itemSize: 18.0,
                                 glowColor: FlutterFlowTheme.of(context).primary,
+                                minRating: 0.0,
                               ),
                             ],
                           ),
@@ -1199,21 +1344,18 @@ class _WriteReviewWidgetState extends State<WriteReviewWidget> {
                         ].divide(SizedBox(height: 4.0)),
                       ),
                       Text(
-                        'Would you play here again?',
+                        'Would you play here again? *',
                         style: FlutterFlowTheme.of(context).bodyMedium.override(
-                              font: GoogleFonts.inter(
-                                fontWeight: FontWeight.w600,
-                                fontStyle: FlutterFlowTheme.of(context)
-                                    .bodyMedium
-                                    .fontStyle,
-                              ),
-                              fontSize: 14.0,
-                              letterSpacing: 0.0,
-                              fontWeight: FontWeight.w600,
-                              fontStyle: FlutterFlowTheme.of(context)
-                                  .bodyMedium
-                                  .fontStyle,
-                            ),
+                          font: GoogleFonts.inter(
+                            fontWeight: FontWeight.w600,
+                            fontStyle: FlutterFlowTheme.of(
+                              context,
+                            ).bodyMedium.fontStyle,
+                          ),
+                          fontSize: 14.0,
+                          letterSpacing: 0.0,
+                          fontWeight: FontWeight.w600,
+                        ),
                       ),
                       Row(
                         mainAxisSize: MainAxisSize.max,
@@ -1232,14 +1374,16 @@ class _WriteReviewWidgetState extends State<WriteReviewWidget> {
                                 width: 100.0,
                                 height: 40.0,
                                 decoration: BoxDecoration(
-                                  color: FlutterFlowTheme.of(context)
-                                      .secondaryBackground,
+                                  color: FlutterFlowTheme.of(
+                                    context,
+                                  ).secondaryBackground,
                                   borderRadius: BorderRadius.circular(8.0),
                                   border: Border.all(
-                                    color: _model.playToggle!
+                                    color: _model.playToggle == true
                                         ? FlutterFlowTheme.of(context).primary
-                                        : FlutterFlowTheme.of(context)
-                                            .secondaryText,
+                                        : FlutterFlowTheme.of(
+                                            context,
+                                          ).secondaryText,
                                   ),
                                 ),
                                 child: Row(
@@ -1248,10 +1392,11 @@ class _WriteReviewWidgetState extends State<WriteReviewWidget> {
                                   children: [
                                     Icon(
                                       Icons.thumb_up_off_alt,
-                                      color: _model.playToggle!
+                                      color: _model.playToggle == true
                                           ? FlutterFlowTheme.of(context).primary
-                                          : FlutterFlowTheme.of(context)
-                                              .secondaryText,
+                                          : FlutterFlowTheme.of(
+                                              context,
+                                            ).secondaryText,
                                       size: 18.0,
                                     ),
                                     Text(
@@ -1260,30 +1405,25 @@ class _WriteReviewWidgetState extends State<WriteReviewWidget> {
                                           .bodyMedium
                                           .override(
                                             font: GoogleFonts.inter(
-                                              fontWeight:
-                                                  FlutterFlowTheme.of(context)
-                                                      .bodyMedium
-                                                      .fontWeight,
-                                              fontStyle:
-                                                  FlutterFlowTheme.of(context)
-                                                      .bodyMedium
-                                                      .fontStyle,
+                                              fontWeight: FlutterFlowTheme.of(
+                                                context,
+                                              ).bodyMedium.fontWeight,
+                                              fontStyle: FlutterFlowTheme.of(
+                                                context,
+                                              ).bodyMedium.fontStyle,
                                             ),
-                                            color: _model.playToggle!
-                                                ? FlutterFlowTheme.of(context)
-                                                    .primary
-                                                : FlutterFlowTheme.of(context)
-                                                    .secondaryText,
+                                            color: _model.playToggle == true
+                                                ? FlutterFlowTheme.of(
+                                                    context,
+                                                  ).primary
+                                                : FlutterFlowTheme.of(
+                                                    context,
+                                                  ).secondaryText,
                                             fontSize: 12.0,
                                             letterSpacing: 0.0,
-                                            fontWeight:
-                                                FlutterFlowTheme.of(context)
-                                                    .bodyMedium
-                                                    .fontWeight,
-                                            fontStyle:
-                                                FlutterFlowTheme.of(context)
-                                                    .bodyMedium
-                                                    .fontStyle,
+                                            fontWeight: FlutterFlowTheme.of(
+                                              context,
+                                            ).bodyMedium.fontWeight,
                                           ),
                                     ),
                                   ].divide(SizedBox(width: 8.0)),
@@ -1305,14 +1445,16 @@ class _WriteReviewWidgetState extends State<WriteReviewWidget> {
                                 width: 100.0,
                                 height: 40.0,
                                 decoration: BoxDecoration(
-                                  color: FlutterFlowTheme.of(context)
-                                      .secondaryBackground,
+                                  color: FlutterFlowTheme.of(
+                                    context,
+                                  ).secondaryBackground,
                                   borderRadius: BorderRadius.circular(8.0),
                                   border: Border.all(
-                                    color: _model.playToggle!
+                                    color: _model.playToggle == false
                                         ? FlutterFlowTheme.of(context).primary
-                                        : FlutterFlowTheme.of(context)
-                                            .secondaryText,
+                                        : FlutterFlowTheme.of(
+                                            context,
+                                          ).secondaryText,
                                   ),
                                 ),
                                 child: Row(
@@ -1321,10 +1463,11 @@ class _WriteReviewWidgetState extends State<WriteReviewWidget> {
                                   children: [
                                     Icon(
                                       Icons.thumb_down_outlined,
-                                      color: _model.playToggle!
+                                      color: _model.playToggle == false
                                           ? FlutterFlowTheme.of(context).primary
-                                          : FlutterFlowTheme.of(context)
-                                              .secondaryText,
+                                          : FlutterFlowTheme.of(
+                                              context,
+                                            ).secondaryText,
                                       size: 18.0,
                                     ),
                                     Text(
@@ -1333,30 +1476,25 @@ class _WriteReviewWidgetState extends State<WriteReviewWidget> {
                                           .bodyMedium
                                           .override(
                                             font: GoogleFonts.inter(
-                                              fontWeight:
-                                                  FlutterFlowTheme.of(context)
-                                                      .bodyMedium
-                                                      .fontWeight,
-                                              fontStyle:
-                                                  FlutterFlowTheme.of(context)
-                                                      .bodyMedium
-                                                      .fontStyle,
+                                              fontWeight: FlutterFlowTheme.of(
+                                                context,
+                                              ).bodyMedium.fontWeight,
+                                              fontStyle: FlutterFlowTheme.of(
+                                                context,
+                                              ).bodyMedium.fontStyle,
                                             ),
-                                            color: _model.playToggle!
-                                                ? FlutterFlowTheme.of(context)
-                                                    .primary
-                                                : FlutterFlowTheme.of(context)
-                                                    .secondaryText,
+                                            color: _model.playToggle == false
+                                                ? FlutterFlowTheme.of(
+                                                    context,
+                                                  ).primary
+                                                : FlutterFlowTheme.of(
+                                                    context,
+                                                  ).secondaryText,
                                             fontSize: 12.0,
                                             letterSpacing: 0.0,
-                                            fontWeight:
-                                                FlutterFlowTheme.of(context)
-                                                    .bodyMedium
-                                                    .fontWeight,
-                                            fontStyle:
-                                                FlutterFlowTheme.of(context)
-                                                    .bodyMedium
-                                                    .fontStyle,
+                                            fontWeight: FlutterFlowTheme.of(
+                                              context,
+                                            ).bodyMedium.fontWeight,
                                           ),
                                     ),
                                   ].divide(SizedBox(width: 8.0)),
@@ -1367,20 +1505,17 @@ class _WriteReviewWidgetState extends State<WriteReviewWidget> {
                         ].divide(SizedBox(width: 12.0)),
                       ),
                       Text(
-                        'Your review',
+                        'Your review *',
                         style: FlutterFlowTheme.of(context).bodyMedium.override(
-                              font: GoogleFonts.inter(
-                                fontWeight: FontWeight.w600,
-                                fontStyle: FlutterFlowTheme.of(context)
-                                    .bodyMedium
-                                    .fontStyle,
-                              ),
-                              letterSpacing: 0.0,
-                              fontWeight: FontWeight.w600,
-                              fontStyle: FlutterFlowTheme.of(context)
-                                  .bodyMedium
-                                  .fontStyle,
-                            ),
+                          font: GoogleFonts.inter(
+                            fontWeight: FontWeight.w600,
+                            fontStyle: FlutterFlowTheme.of(
+                              context,
+                            ).bodyMedium.fontStyle,
+                          ),
+                          letterSpacing: 0.0,
+                          fontWeight: FontWeight.w600,
+                        ),
                       ),
                       Container(
                         width: double.infinity,
@@ -1392,44 +1527,21 @@ class _WriteReviewWidgetState extends State<WriteReviewWidget> {
                           obscureText: false,
                           decoration: InputDecoration(
                             isDense: true,
-                            labelStyle: FlutterFlowTheme.of(context)
-                                .labelMedium
-                                .override(
-                                  font: GoogleFonts.inter(
-                                    fontWeight: FlutterFlowTheme.of(context)
-                                        .labelMedium
-                                        .fontWeight,
-                                    fontStyle: FlutterFlowTheme.of(context)
-                                        .labelMedium
-                                        .fontStyle,
-                                  ),
-                                  letterSpacing: 0.0,
-                                  fontWeight: FlutterFlowTheme.of(context)
-                                      .labelMedium
-                                      .fontWeight,
-                                  fontStyle: FlutterFlowTheme.of(context)
-                                      .labelMedium
-                                      .fontStyle,
-                                ),
                             hintText: 'Share your experience...',
-                            hintStyle: FlutterFlowTheme.of(context)
-                                .labelMedium
+                            hintStyle: FlutterFlowTheme.of(context).labelMedium
                                 .override(
                                   font: GoogleFonts.inter(
-                                    fontWeight: FlutterFlowTheme.of(context)
-                                        .labelMedium
-                                        .fontWeight,
-                                    fontStyle: FlutterFlowTheme.of(context)
-                                        .labelMedium
-                                        .fontStyle,
+                                    fontWeight: FlutterFlowTheme.of(
+                                      context,
+                                    ).labelMedium.fontWeight,
+                                    fontStyle: FlutterFlowTheme.of(
+                                      context,
+                                    ).labelMedium.fontStyle,
                                   ),
                                   letterSpacing: 0.0,
-                                  fontWeight: FlutterFlowTheme.of(context)
-                                      .labelMedium
-                                      .fontWeight,
-                                  fontStyle: FlutterFlowTheme.of(context)
-                                      .labelMedium
-                                      .fontStyle,
+                                  fontWeight: FlutterFlowTheme.of(
+                                    context,
+                                  ).labelMedium.fontWeight,
                                 ),
                             enabledBorder: OutlineInputBorder(
                               borderSide: BorderSide(
@@ -1440,7 +1552,7 @@ class _WriteReviewWidgetState extends State<WriteReviewWidget> {
                             ),
                             focusedBorder: OutlineInputBorder(
                               borderSide: BorderSide(
-                                color: Color(0x00000000),
+                                color: FlutterFlowTheme.of(context).primary,
                                 width: 1.0,
                               ),
                               borderRadius: BorderRadius.circular(8.0),
@@ -1460,34 +1572,33 @@ class _WriteReviewWidgetState extends State<WriteReviewWidget> {
                               borderRadius: BorderRadius.circular(8.0),
                             ),
                             filled: true,
-                            fillColor: FlutterFlowTheme.of(context)
-                                .secondaryBackground,
+                            fillColor: FlutterFlowTheme.of(
+                              context,
+                            ).secondaryBackground,
                           ),
-                          style:
-                              FlutterFlowTheme.of(context).bodyMedium.override(
-                                    font: GoogleFonts.inter(
-                                      fontWeight: FlutterFlowTheme.of(context)
-                                          .bodyMedium
-                                          .fontWeight,
-                                      fontStyle: FlutterFlowTheme.of(context)
-                                          .bodyMedium
-                                          .fontStyle,
-                                    ),
-                                    letterSpacing: 0.0,
-                                    fontWeight: FlutterFlowTheme.of(context)
-                                        .bodyMedium
-                                        .fontWeight,
-                                    fontStyle: FlutterFlowTheme.of(context)
-                                        .bodyMedium
-                                        .fontStyle,
-                                  ),
+                          style: FlutterFlowTheme.of(context).bodyMedium
+                              .override(
+                                font: GoogleFonts.inter(
+                                  fontWeight: FlutterFlowTheme.of(
+                                    context,
+                                  ).bodyMedium.fontWeight,
+                                  fontStyle: FlutterFlowTheme.of(
+                                    context,
+                                  ).bodyMedium.fontStyle,
+                                ),
+                                letterSpacing: 0.0,
+                                fontWeight: FlutterFlowTheme.of(
+                                  context,
+                                ).bodyMedium.fontWeight,
+                              ),
                           maxLines: null,
                           minLines: 3,
                           maxLength: 1000,
                           cursorColor: FlutterFlowTheme.of(context).primaryText,
                           enableInteractiveSelection: true,
-                          validator: _model.textControllerValidator
-                              .asValidator(context),
+                          validator: _model.textControllerValidator.asValidator(
+                            context,
+                          ),
                         ),
                       ),
                       Row(
@@ -1495,39 +1606,31 @@ class _WriteReviewWidgetState extends State<WriteReviewWidget> {
                         children: [
                           Text(
                             'Add Photos',
-                            style: FlutterFlowTheme.of(context)
-                                .bodyMedium
+                            style: FlutterFlowTheme.of(context).bodyMedium
                                 .override(
                                   font: GoogleFonts.inter(
                                     fontWeight: FontWeight.w600,
-                                    fontStyle: FlutterFlowTheme.of(context)
-                                        .bodyMedium
-                                        .fontStyle,
+                                    fontStyle: FlutterFlowTheme.of(
+                                      context,
+                                    ).bodyMedium.fontStyle,
                                   ),
                                   letterSpacing: 0.0,
                                   fontWeight: FontWeight.w600,
-                                  fontStyle: FlutterFlowTheme.of(context)
-                                      .bodyMedium
-                                      .fontStyle,
                                 ),
                           ),
                           Text(
                             '(optional)',
-                            style: FlutterFlowTheme.of(context)
-                                .bodyMedium
+                            style: FlutterFlowTheme.of(context).bodyMedium
                                 .override(
                                   font: GoogleFonts.inter(
                                     fontWeight: FontWeight.normal,
-                                    fontStyle: FlutterFlowTheme.of(context)
-                                        .bodyMedium
-                                        .fontStyle,
+                                    fontStyle: FlutterFlowTheme.of(
+                                      context,
+                                    ).bodyMedium.fontStyle,
                                   ),
                                   fontSize: 12.0,
                                   letterSpacing: 0.0,
                                   fontWeight: FontWeight.normal,
-                                  fontStyle: FlutterFlowTheme.of(context)
-                                      .bodyMedium
-                                      .fontStyle,
                                 ),
                           ),
                         ].divide(SizedBox(width: 2.0)),
@@ -1535,60 +1638,106 @@ class _WriteReviewWidgetState extends State<WriteReviewWidget> {
                       Row(
                         mainAxisSize: MainAxisSize.max,
                         children: [
-                          Container(
-                            width: 80.0,
-                            height: 80.0,
-                            decoration: BoxDecoration(
-                              color: FlutterFlowTheme.of(context)
-                                  .secondaryBackground,
-                              borderRadius: BorderRadius.circular(8.0),
-                              border: FlutterFlowStyledBorder(
-                                side: BorderSide(
-                                  color:
-                                      FlutterFlowTheme.of(context).primaryText,
-                                ),
-                                style: FlutterFlowDashStyle.dashed,
-                                dashLength: 6.0,
-                                dashGap: 4.0,
-                              ),
-                            ),
-                            child: Column(
-                              mainAxisSize: MainAxisSize.max,
-                              mainAxisAlignment: MainAxisAlignment.center,
-                              children: [
-                                Icon(
-                                  Icons.add,
-                                  color: FlutterFlowTheme.of(context).primary,
-                                  size: 16.0,
-                                ),
-                                Text(
-                                  'Add Photo',
-                                  style: FlutterFlowTheme.of(context)
-                                      .bodyMedium
-                                      .override(
-                                        font: GoogleFonts.inter(
-                                          fontWeight:
-                                              FlutterFlowTheme.of(context)
-                                                  .bodyMedium
-                                                  .fontWeight,
-                                          fontStyle:
-                                              FlutterFlowTheme.of(context)
-                                                  .bodyMedium
-                                                  .fontStyle,
+                          InkWell(
+                            splashColor: Colors.transparent,
+                            focusColor: Colors.transparent,
+                            hoverColor: Colors.transparent,
+                            highlightColor: Colors.transparent,
+                            onTap: () async {
+                              final selectedMedia =
+                                  await selectMediaWithSourceBottomSheet(
+                                    context: context,
+                                    allowPhoto: true,
+                                  );
+                              if (selectedMedia != null &&
+                                  selectedMedia.isNotEmpty) {
+                                safeSetState(
+                                  () => _model.isUploadingPhoto = true,
+                                );
+                                try {
+                                  final downloadUrls =
+                                      await uploadSupabaseStorageFiles(
+                                        bucketName: 'golfClub',
+                                        selectedFiles: selectedMedia,
+                                      );
+                                  safeSetState(() {
+                                    _model.uploadedPhotoUrls.addAll(
+                                      downloadUrls,
+                                    );
+                                  });
+                                } catch (e) {
+                                  if (mounted) {
+                                    ScaffoldMessenger.of(context).showSnackBar(
+                                      SnackBar(
+                                        content: Text(
+                                          'Failed to upload photo: $e',
                                         ),
-                                        color: FlutterFlowTheme.of(context)
-                                            .primary,
-                                        fontSize: 10.0,
-                                        letterSpacing: 0.0,
-                                        fontWeight: FlutterFlowTheme.of(context)
-                                            .bodyMedium
-                                            .fontWeight,
-                                        fontStyle: FlutterFlowTheme.of(context)
-                                            .bodyMedium
-                                            .fontStyle,
+                                        backgroundColor: FlutterFlowTheme.of(
+                                          context,
+                                        ).error,
                                       ),
+                                    );
+                                  }
+                                } finally {
+                                  safeSetState(
+                                    () => _model.isUploadingPhoto = false,
+                                  );
+                                }
+                              }
+                            },
+                            child: Container(
+                              width: 80.0,
+                              height: 80.0,
+                              decoration: BoxDecoration(
+                                color: FlutterFlowTheme.of(
+                                  context,
+                                ).secondaryBackground,
+                                borderRadius: BorderRadius.circular(8.0),
+                                border: FlutterFlowStyledBorder(
+                                  side: BorderSide(
+                                    color: FlutterFlowTheme.of(
+                                      context,
+                                    ).primaryText,
+                                  ),
+                                  style: FlutterFlowDashStyle.dashed,
+                                  dashLength: 6.0,
+                                  dashGap: 4.0,
                                 ),
-                              ].divide(SizedBox(height: 6.0)),
+                              ),
+                              child: Column(
+                                mainAxisSize: MainAxisSize.max,
+                                mainAxisAlignment: MainAxisAlignment.center,
+                                children: [
+                                  Icon(
+                                    Icons.add,
+                                    color: FlutterFlowTheme.of(context).primary,
+                                    size: 16.0,
+                                  ),
+                                  Text(
+                                    'Add Photo',
+                                    style: FlutterFlowTheme.of(context)
+                                        .bodyMedium
+                                        .override(
+                                          font: GoogleFonts.inter(
+                                            fontWeight: FlutterFlowTheme.of(
+                                              context,
+                                            ).bodyMedium.fontWeight,
+                                            fontStyle: FlutterFlowTheme.of(
+                                              context,
+                                            ).bodyMedium.fontStyle,
+                                          ),
+                                          color: FlutterFlowTheme.of(
+                                            context,
+                                          ).primary,
+                                          fontSize: 10.0,
+                                          letterSpacing: 0.0,
+                                          fontWeight: FlutterFlowTheme.of(
+                                            context,
+                                          ).bodyMedium.fontWeight,
+                                        ),
+                                  ),
+                                ].divide(SizedBox(height: 6.0)),
+                              ),
                             ),
                           ),
                           Expanded(
@@ -1597,166 +1746,106 @@ class _WriteReviewWidgetState extends State<WriteReviewWidget> {
                               child: Row(
                                 mainAxisSize: MainAxisSize.max,
                                 children: [
-                                  Container(
-                                    height: 80.0,
-                                    child: Stack(
-                                      alignment:
-                                          AlignmentDirectional(1.0, -1.0),
-                                      children: [
-                                        Align(
-                                          alignment:
-                                              AlignmentDirectional(0.0, 0.0),
-                                          child: ClipRRect(
-                                            borderRadius:
-                                                BorderRadius.circular(8.0),
-                                            child: Image.network(
-                                              'https://picsum.photos/seed/665/600',
-                                              width: 80.0,
-                                              height: 70.0,
-                                              fit: BoxFit.cover,
-                                            ),
-                                          ),
+                                  if (_model.isUploadingPhoto)
+                                    Container(
+                                      width: 80.0,
+                                      height: 80.0,
+                                      decoration: BoxDecoration(
+                                        color: FlutterFlowTheme.of(
+                                          context,
+                                        ).secondaryBackground,
+                                        borderRadius: BorderRadius.circular(
+                                          8.0,
                                         ),
-                                        Align(
-                                          alignment:
-                                              AlignmentDirectional(1.0, -1.0),
-                                          child: Padding(
-                                            padding:
-                                                EdgeInsetsDirectional.fromSTEB(
-                                                    0.0, 0.0, 0.0, 8.0),
-                                            child: Container(
-                                              width: 22.0,
-                                              height: 22.0,
-                                              decoration: BoxDecoration(
-                                                color:
-                                                    FlutterFlowTheme.of(context)
-                                                        .secondaryBackground,
-                                                shape: BoxShape.circle,
-                                                border: Border.all(
-                                                  color: FlutterFlowTheme.of(
-                                                          context)
-                                                      .primaryText,
-                                                ),
+                                      ),
+                                      alignment: Alignment.center,
+                                      child: SizedBox(
+                                        width: 24.0,
+                                        height: 24.0,
+                                        child: CircularProgressIndicator(
+                                          strokeWidth: 2.0,
+                                          valueColor:
+                                              AlwaysStoppedAnimation<Color>(
+                                                FlutterFlowTheme.of(
+                                                  context,
+                                                ).primary,
                                               ),
-                                              child: Icon(
-                                                Icons.close,
-                                                color:
-                                                    FlutterFlowTheme.of(context)
-                                                        .primaryText,
-                                                size: 16.0,
-                                              ),
-                                            ),
-                                          ),
                                         ),
-                                      ],
+                                      ),
                                     ),
-                                  ),
-                                  Container(
-                                    height: 80.0,
-                                    child: Stack(
-                                      alignment:
-                                          AlignmentDirectional(1.0, -1.0),
-                                      children: [
-                                        Align(
-                                          alignment:
-                                              AlignmentDirectional(0.0, 0.0),
-                                          child: ClipRRect(
-                                            borderRadius:
-                                                BorderRadius.circular(8.0),
-                                            child: Image.network(
-                                              'https://picsum.photos/seed/665/600',
-                                              width: 80.0,
-                                              height: 70.0,
-                                              fit: BoxFit.cover,
+                                  ..._model.uploadedPhotoUrls.map(
+                                    (photoUrl) => Container(
+                                      height: 80.0,
+                                      child: Stack(
+                                        alignment: AlignmentDirectional(
+                                          1.0,
+                                          -1.0,
+                                        ),
+                                        children: [
+                                          Align(
+                                            alignment: AlignmentDirectional(
+                                              0.0,
+                                              0.0,
+                                            ),
+                                            child: ClipRRect(
+                                              borderRadius:
+                                                  BorderRadius.circular(8.0),
+                                              child: CachedNetworkImage(
+                                                imageUrl: photoUrl,
+                                                width: 80.0,
+                                                height: 70.0,
+                                                fit: BoxFit.cover,
+                                              ),
                                             ),
                                           ),
-                                        ),
-                                        Align(
-                                          alignment:
-                                              AlignmentDirectional(1.0, -1.0),
-                                          child: Padding(
-                                            padding:
-                                                EdgeInsetsDirectional.fromSTEB(
-                                                    0.0, 0.0, 0.0, 8.0),
-                                            child: Container(
-                                              width: 22.0,
-                                              height: 22.0,
-                                              decoration: BoxDecoration(
-                                                color:
-                                                    FlutterFlowTheme.of(context)
-                                                        .secondaryBackground,
-                                                shape: BoxShape.circle,
-                                                border: Border.all(
-                                                  color: FlutterFlowTheme.of(
-                                                          context)
-                                                      .primaryText,
+                                          Align(
+                                            alignment: AlignmentDirectional(
+                                              1.0,
+                                              -1.0,
+                                            ),
+                                            child: Padding(
+                                              padding:
+                                                  EdgeInsetsDirectional.fromSTEB(
+                                                    0.0,
+                                                    0.0,
+                                                    0.0,
+                                                    8.0,
+                                                  ),
+                                              child: InkWell(
+                                                onTap: () {
+                                                  safeSetState(() {
+                                                    _model.uploadedPhotoUrls
+                                                        .remove(photoUrl);
+                                                  });
+                                                },
+                                                child: Container(
+                                                  width: 22.0,
+                                                  height: 22.0,
+                                                  decoration: BoxDecoration(
+                                                    color: FlutterFlowTheme.of(
+                                                      context,
+                                                    ).secondaryBackground,
+                                                    shape: BoxShape.circle,
+                                                    border: Border.all(
+                                                      color:
+                                                          FlutterFlowTheme.of(
+                                                            context,
+                                                          ).primaryText,
+                                                    ),
+                                                  ),
+                                                  child: Icon(
+                                                    Icons.close,
+                                                    color: FlutterFlowTheme.of(
+                                                      context,
+                                                    ).primaryText,
+                                                    size: 16.0,
+                                                  ),
                                                 ),
                                               ),
-                                              child: Icon(
-                                                Icons.close,
-                                                color:
-                                                    FlutterFlowTheme.of(context)
-                                                        .primaryText,
-                                                size: 16.0,
-                                              ),
                                             ),
                                           ),
-                                        ),
-                                      ],
-                                    ),
-                                  ),
-                                  Container(
-                                    height: 80.0,
-                                    child: Stack(
-                                      alignment:
-                                          AlignmentDirectional(1.0, -1.0),
-                                      children: [
-                                        Align(
-                                          alignment:
-                                              AlignmentDirectional(0.0, 0.0),
-                                          child: ClipRRect(
-                                            borderRadius:
-                                                BorderRadius.circular(8.0),
-                                            child: Image.network(
-                                              'https://picsum.photos/seed/665/600',
-                                              width: 80.0,
-                                              height: 70.0,
-                                              fit: BoxFit.cover,
-                                            ),
-                                          ),
-                                        ),
-                                        Align(
-                                          alignment:
-                                              AlignmentDirectional(1.0, -1.0),
-                                          child: Padding(
-                                            padding:
-                                                EdgeInsetsDirectional.fromSTEB(
-                                                    0.0, 0.0, 0.0, 8.0),
-                                            child: Container(
-                                              width: 22.0,
-                                              height: 22.0,
-                                              decoration: BoxDecoration(
-                                                color:
-                                                    FlutterFlowTheme.of(context)
-                                                        .secondaryBackground,
-                                                shape: BoxShape.circle,
-                                                border: Border.all(
-                                                  color: FlutterFlowTheme.of(
-                                                          context)
-                                                      .primaryText,
-                                                ),
-                                              ),
-                                              child: Icon(
-                                                Icons.close,
-                                                color:
-                                                    FlutterFlowTheme.of(context)
-                                                        .primaryText,
-                                                size: 16.0,
-                                              ),
-                                            ),
-                                          ),
-                                        ),
-                                      ],
+                                        ],
+                                      ),
                                     ),
                                   ),
                                 ].divide(SizedBox(width: 8.0)),

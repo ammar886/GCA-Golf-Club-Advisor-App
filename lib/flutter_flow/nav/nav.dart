@@ -1,6 +1,8 @@
 import 'dart:async';
 
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
+import 'package:page_transition/page_transition.dart';
 import 'package:provider/provider.dart';
 
 import '/backend/schema/structs/index.dart';
@@ -11,7 +13,10 @@ import '/auth/base_auth_user_provider.dart';
 
 import '/main.dart';
 import '/flutter_flow/flutter_flow_theme.dart';
+import '/flutter_flow/lat_lng.dart';
+import '/flutter_flow/place.dart';
 import '/flutter_flow/flutter_flow_util.dart';
+import 'serialization_util.dart';
 
 import '/index.dart';
 
@@ -114,7 +119,17 @@ GoRouter createRouter(AppStateNotifier appStateNotifier) => GoRouter(
         FFRoute(
           name: WriteReviewWidget.routeName,
           path: WriteReviewWidget.routePath,
-          builder: (context, params) => WriteReviewWidget(),
+          builder: (context, params) => WriteReviewWidget(
+            clubDetails: params.getParam<GolfClubsRow>(
+              'clubDetails',
+              ParamType.SupabaseRow,
+            ),
+          ),
+        ),
+        FFRoute(
+          name: MyReviewsWidget.routeName,
+          path: MyReviewsWidget.routePath,
+          builder: (context, params) => MyReviewsWidget(),
         ),
         FFRoute(
           name: MapWidget.routeName,
@@ -229,23 +244,6 @@ GoRouter createRouter(AppStateNotifier appStateNotifier) => GoRouter(
           name: UpdatePasswordWidget.routeName,
           path: UpdatePasswordWidget.routePath,
           builder: (context, params) => UpdatePasswordWidget(),
-        ),
-        FFRoute(
-          name: ReviewsManagementWidget.routeName,
-          path: ReviewsManagementWidget.routePath,
-          requireAuth: true,
-          builder: (context, params) => ReviewsManagementWidget(),
-        ),
-        FFRoute(
-          name: ReviewDetailViewWidget.routeName,
-          path: ReviewDetailViewWidget.routePath,
-          requireAuth: true,
-          builder: (context, params) => ReviewDetailViewWidget(
-            review: params.getParam<ClubReviewsRow>(
-              'review',
-              ParamType.SupabaseRow,
-            ),
-          ),
         )
       ].map((r) => r.toRoute(appStateNotifier)).toList(),
     );

@@ -9,11 +9,13 @@ import '/flutter_flow/flutter_flow_widgets.dart';
 import '/flutter_flow/form_field_controller.dart';
 import '/flutter_flow/upload_data.dart';
 import '/pages/user_profile/golfer_card/golfer_card_widget.dart';
+import 'dart:ui';
 import '/index.dart';
 import 'package:aligned_dialog/aligned_dialog.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/scheduler.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:provider/provider.dart';
 import 'user_profile_model.dart';
 export 'user_profile_model.dart';
 
@@ -50,7 +52,7 @@ class _UserProfileWidgetState extends State<UserProfileWidget> {
           currentUserUid,
         ),
       );
-      if (!widget.isAdmin) {
+      if (!widget!.isAdmin) {
         _model.selectedClub = _model.userDetails?.firstOrNull?.homeClub;
         safeSetState(() {});
         safeSetState(() {
@@ -193,13 +195,117 @@ class _UserProfileWidgetState extends State<UserProfileWidget> {
                                 ),
                               ].divide(SizedBox(width: 12.0)),
                             ),
-                            if (!widget.isAdmin)
+                            if (!widget!.isAdmin)
                               wrapWithModel(
                                 model: _model.golferCardModel,
                                 updateCallback: () => safeSetState(() {}),
                                 child: GolferCardWidget(
                                   golferDetails:
                                       _model.userDetails?.firstOrNull,
+                                ),
+                              ),
+                            if (!widget!.isAdmin)
+                              Padding(
+                                padding: EdgeInsetsDirectional.fromSTEB(
+                                    8.0, 0.0, 8.0, 0.0),
+                                child: InkWell(
+                                  splashColor: Colors.transparent,
+                                  focusColor: Colors.transparent,
+                                  hoverColor: Colors.transparent,
+                                  highlightColor: Colors.transparent,
+                                  onTap: () async {
+                                    context.pushNamed('MyReviews');
+                                  },
+                                  child: Container(
+                                    width: double.infinity,
+                                    decoration: BoxDecoration(
+                                      color: FlutterFlowTheme.of(context)
+                                          .secondaryBackground,
+                                      borderRadius: BorderRadius.circular(12.0),
+                                      border: Border.all(
+                                        color: FlutterFlowTheme.of(context)
+                                            .alternate,
+                                        width: 1.0,
+                                      ),
+                                    ),
+                                    child: Padding(
+                                      padding: EdgeInsetsDirectional.fromSTEB(
+                                          16.0, 14.0, 16.0, 14.0),
+                                      child: Row(
+                                        mainAxisSize: MainAxisSize.max,
+                                        children: [
+                                          Container(
+                                            width: 40.0,
+                                            height: 40.0,
+                                            decoration: BoxDecoration(
+                                              color:
+                                                  FlutterFlowTheme.of(context)
+                                                      .primary
+                                                      .withOpacity(0.12),
+                                              borderRadius:
+                                                  BorderRadius.circular(10.0),
+                                            ),
+                                            child: Icon(
+                                              Icons.rate_review_rounded,
+                                              color:
+                                                  FlutterFlowTheme.of(context)
+                                                      .primary,
+                                              size: 20.0,
+                                            ),
+                                          ),
+                                          SizedBox(width: 14.0),
+                                          Expanded(
+                                            child: Column(
+                                              mainAxisSize: MainAxisSize.min,
+                                              crossAxisAlignment:
+                                                  CrossAxisAlignment.start,
+                                              children: [
+                                                Text(
+                                                  'My Reviews',
+                                                  style: FlutterFlowTheme.of(
+                                                          context)
+                                                      .titleSmall
+                                                      .override(
+                                                        font: GoogleFonts
+                                                            .plusJakartaSans(
+                                                          fontWeight:
+                                                              FontWeight.bold,
+                                                        ),
+                                                        color:
+                                                            FlutterFlowTheme.of(
+                                                                    context)
+                                                                .primaryText,
+                                                      ),
+                                                ),
+                                                SizedBox(height: 2.0),
+                                                Text(
+                                                  'View your submitted reviews & pending approvals',
+                                                  style: FlutterFlowTheme.of(
+                                                          context)
+                                                      .bodySmall
+                                                      .override(
+                                                        font:
+                                                            GoogleFonts.inter(),
+                                                        color:
+                                                            FlutterFlowTheme.of(
+                                                                    context)
+                                                                .secondaryText,
+                                                        fontSize: 11.0,
+                                                      ),
+                                                ),
+                                              ],
+                                            ),
+                                          ),
+                                          Icon(
+                                            Icons.chevron_right_rounded,
+                                            color: FlutterFlowTheme.of(context)
+                                                .secondaryText,
+                                            size: 22.0,
+                                          ),
+                                        ],
+                                      ),
+                                    ),
+                                  ),
                                 ),
                               ),
                             Column(
@@ -715,7 +821,7 @@ class _UserProfileWidgetState extends State<UserProfileWidget> {
                                   ),
                                 ].divide(SizedBox(height: 8.0)),
                               ),
-                              if (!widget.isAdmin)
+                              if (!widget!.isAdmin)
                                 Column(
                                   mainAxisSize: MainAxisSize.max,
                                   crossAxisAlignment: CrossAxisAlignment.start,
@@ -854,7 +960,7 @@ class _UserProfileWidgetState extends State<UserProfileWidget> {
                                     ),
                                   ].divide(SizedBox(height: 8.0)),
                                 ),
-                              if (!widget.isAdmin)
+                              if (!widget!.isAdmin)
                                 Column(
                                   mainAxisSize: MainAxisSize.max,
                                   crossAxisAlignment: CrossAxisAlignment.start,
@@ -1021,7 +1127,7 @@ class _UserProfileWidgetState extends State<UserProfileWidget> {
                                     ),
                                   ].divide(SizedBox(height: 8.0)),
                                 ),
-                              if (!widget.isAdmin)
+                              if (!widget!.isAdmin)
                                 Column(
                                   mainAxisSize: MainAxisSize.max,
                                   crossAxisAlignment: CrossAxisAlignment.start,

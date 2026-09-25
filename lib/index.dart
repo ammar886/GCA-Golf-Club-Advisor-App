@@ -4,6 +4,7 @@ export '/pages/search/search_widget.dart' show SearchWidget;
 export '/pages/golf_club_details/golf_club_details_widget.dart'
     show GolfClubDetailsWidget;
 export '/pages/write_review/write_review_widget.dart' show WriteReviewWidget;
+export '/pages/my_reviews/my_reviews_widget.dart' show MyReviewsWidget;
 export '/pages/map/map_widget.dart' show MapWidget;
 export '/pages/user_profile/user_profile/user_profile_widget.dart'
     show UserProfileWidget;
@@ -30,7 +31,3 @@ export '/pages/admin/admin_profile/admin_profile_widget.dart'
     show AdminProfileWidget;
 export '/pages/admin/update_password/update_password_widget.dart'
     show UpdatePasswordWidget;
-export '/pages/admin/reviews_management/reviews_management_widget.dart'
-    show ReviewsManagementWidget;
-export '/pages/admin/review_detail_view/review_detail_view_widget.dart'
-    show ReviewDetailViewWidget;
