@@ -347,6 +347,10 @@ class _HomeWidgetState extends State<HomeWidget> {
                                     (nextPageMarker) =>
                                         GolfClubsTable().queryRowsPage(
                                       queryFn: (q) => q
+                                          .eqOrNull(
+                                            'isCompleted',
+                                            true,
+                                          )
                                           .order('name', ascending: true)
                                           .order('id'),
                                       offset: nextPageMarker,

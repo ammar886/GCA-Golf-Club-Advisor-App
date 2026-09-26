@@ -61,4 +61,7 @@ class GolfClubsRow extends SupabaseDataRow {
 
   double? get longitude => getField<double>('longitude');
   set longitude(double? value) => setField<double>('longitude', value);
+
+  bool? get isCompleted => getField<bool>('isCompleted');
+  set isCompleted(bool? value) => setField<bool>('isCompleted', value);
 }

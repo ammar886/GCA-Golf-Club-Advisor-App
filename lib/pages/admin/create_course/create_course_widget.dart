@@ -1612,6 +1612,7 @@ class _CreateCourseWidgetState extends State<CreateCourseWidget> {
                                       _model.latTextController.text),
                                   'longitude': double.tryParse(
                                       _model.lngTextController.text),
+                                  'isCompleted': true,
                                 });
                                 _shouldSetState = true;
                                 for (int loop1Index = 0;
@@ -1755,6 +1756,7 @@ class _CreateCourseWidgetState extends State<CreateCourseWidget> {
                                           _model.latTextController.text),
                                       'longitude': double.tryParse(
                                           _model.lngTextController.text),
+                                      'isCompleted': true,
                                     },
                                     matchingRows: (rows) => rows.eqOrNull(
                                       'id',
