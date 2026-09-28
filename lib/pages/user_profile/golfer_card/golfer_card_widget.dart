@@ -75,6 +75,7 @@ class _GolferCardWidgetState extends State<GolferCardWidget> {
                       child: Image.asset(
                         'assets/images/WhatsApp_Image_2026-09-12_at_1.27.44_AM.jpeg',
                         fit: BoxFit.contain,
+                        alignment: Alignment(-1.0, 0.0),
                       ),
                     ),
                   ),

@@ -15,6 +15,19 @@ import '/flutter_flow/ff_builtin_enums.dart';
 import '/backend/supabase/supabase.dart';
 import '/auth/supabase_auth/auth_util.dart';
 
-double getLatitude(LatLng location) {
-  return location.latitude;
+List<LatLng> getClubMarkers(List<GolfClubsRow> clubs) {
+  final List<LatLng> markers = [];
+
+  for (final club in clubs) {
+    final lat = club.latitude;
+    final lng = club.longitude;
+
+    // Safety check; getNearestClubs already filters these out
+    if (lat == null || lng == null) continue;
+    if (lat == 0 && lng == 0) continue;
+
+    markers.add(LatLng(lat, lng));
+  }
+
+  return markers;
 }

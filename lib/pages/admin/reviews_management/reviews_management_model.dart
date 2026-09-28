@@ -1,6 +1,5 @@
 import '/components/navbar_widget.dart';
 import '/flutter_flow/flutter_flow_util.dart';
-import '/index.dart';
 import 'reviews_management_widget.dart' show ReviewsManagementWidget;
 import 'package:flutter/material.dart';
 

@@ -5,6 +5,7 @@ export '../supabase.dart';
 export 'row.dart';
 export 'table.dart';
 
+export 'tables/club_gallery.dart';
 export 'tables/club_rating_stats.dart';
 export 'tables/club_reviews.dart';
 export 'tables/geography_columns.dart';
