@@ -101,25 +101,77 @@ class _HomeWidgetState extends State<HomeWidget> {
                       mainAxisAlignment: MainAxisAlignment.center,
                       crossAxisAlignment: CrossAxisAlignment.center,
                       children: [
-                        Text(
-                          'Golf Club Advisor',
-                          style: FlutterFlowTheme.of(context)
-                              .headlineMedium
-                              .override(
-                                font: GoogleFonts.plusJakartaSans(
+                        RichText(
+                          textScaler: MediaQuery.of(context).textScaler,
+                          text: TextSpan(
+                            children: [
+                              TextSpan(
+                                text: 'G',
+                                style: FlutterFlowTheme.of(context)
+                                    .headlineMedium
+                                    .override(
+                                      font: GoogleFonts.plusJakartaSans(
+                                        fontWeight: FontWeight.w800,
+                                        fontStyle: FlutterFlowTheme.of(context)
+                                            .headlineMedium
+                                            .fontStyle,
+                                      ),
+                                      color: FlutterFlowTheme.of(context)
+                                          .secondary,
+                                      fontSize: 22.0,
+                                      letterSpacing: 0.0,
+                                      fontWeight: FontWeight.w800,
+                                      fontStyle: FlutterFlowTheme.of(context)
+                                          .headlineMedium
+                                          .fontStyle,
+                                    ),
+                              ),
+                              TextSpan(
+                                text: 'olf ',
+                                style: TextStyle(),
+                              ),
+                              TextSpan(
+                                text: 'C',
+                                style: TextStyle(
+                                  color: FlutterFlowTheme.of(context).tertiary,
+                                  fontWeight: FontWeight.w800,
+                                ),
+                              ),
+                              TextSpan(
+                                text: 'lub ',
+                                style: TextStyle(),
+                              ),
+                              TextSpan(
+                                text: 'A',
+                                style: TextStyle(
+                                  color: FlutterFlowTheme.of(context).primary,
+                                  fontWeight: FontWeight.w800,
+                                ),
+                              ),
+                              TextSpan(
+                                text: 'dvisor',
+                                style: TextStyle(),
+                              )
+                            ],
+                            style: FlutterFlowTheme.of(context)
+                                .headlineMedium
+                                .override(
+                                  font: GoogleFonts.plusJakartaSans(
+                                    fontWeight: FontWeight.bold,
+                                    fontStyle: FlutterFlowTheme.of(context)
+                                        .headlineMedium
+                                        .fontStyle,
+                                  ),
+                                  color:
+                                      FlutterFlowTheme.of(context).primaryText,
+                                  fontSize: 22.0,
+                                  letterSpacing: 0.0,
                                   fontWeight: FontWeight.bold,
                                   fontStyle: FlutterFlowTheme.of(context)
                                       .headlineMedium
                                       .fontStyle,
                                 ),
-                                color: FlutterFlowTheme.of(context).primaryText,
-                                fontSize: 22.0,
-                                letterSpacing: 0.0,
-                                fontWeight: FontWeight.bold,
-                                fontStyle: FlutterFlowTheme.of(context)
-                                    .headlineMedium
-                                    .fontStyle,
-                              ),
+                          ),
                         ),
                         Text(
                           'REAL GOLFERS. REAL REVIEWS.',

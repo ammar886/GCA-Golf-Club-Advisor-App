@@ -1,5 +1,6 @@
 import '/backend/supabase/supabase.dart';
 import '/components/fab_widget.dart';
+import '/components/review_widget.dart';
 import '/flutter_flow/flutter_flow_animations.dart';
 import '/flutter_flow/flutter_flow_expanded_image_view.dart';
 import '/flutter_flow/flutter_flow_google_map.dart';
@@ -2807,13 +2808,187 @@ class _ClubDetailedViewWidgetState extends State<ClubDetailedViewWidget>
                                       ),
                                     ),
                                   ),
-                                  Column(
-                                    mainAxisSize: MainAxisSize.max,
-                                    children: [],
+                                  Padding(
+                                    padding: EdgeInsetsDirectional.fromSTEB(
+                                        8.0, 4.0, 8.0, 4.0),
+                                    child: FutureBuilder<List<ClubReviewsRow>>(
+                                      future: ClubReviewsTable().queryRows(
+                                        queryFn: (q) => q
+                                            .eqOrNull(
+                                              'club_id',
+                                              widget.clubDetails?.id,
+                                            )
+                                            .order('created_at'),
+                                      ),
+                                      builder: (context, snapshot) {
+                                        // Customize what your widget looks like when it's loading.
+                                        if (!snapshot.hasData) {
+                                          return Center(
+                                            child: SizedBox(
+                                              width: 50.0,
+                                              height: 50.0,
+                                              child: CircularProgressIndicator(
+                                                valueColor:
+                                                    AlwaysStoppedAnimation<
+                                                        Color>(
+                                                  FlutterFlowTheme.of(context)
+                                                      .primary,
+                                                ),
+                                              ),
+                                            ),
+                                          );
+                                        }
+                                        List<ClubReviewsRow>
+                                            listViewClubReviewsRowList =
+                                            snapshot.data!;
+
+                                        return ListView.separated(
+                                          padding: EdgeInsets.zero,
+                                          shrinkWrap: true,
+                                          scrollDirection: Axis.vertical,
+                                          itemCount:
+                                              listViewClubReviewsRowList.length,
+                                          separatorBuilder: (_, __) =>
+                                              SizedBox(height: 16.0),
+                                          itemBuilder:
+                                              (context, listViewIndex) {
+                                            final listViewClubReviewsRow =
+                                                listViewClubReviewsRowList[
+                                                    listViewIndex];
+                                            return wrapWithModel(
+                                              model:
+                                                  _model.reviewModels.getModel(
+                                                listViewClubReviewsRow.id!,
+                                                listViewIndex,
+                                              ),
+                                              updateCallback: () =>
+                                                  safeSetState(() {}),
+                                              child: ReviewWidget(
+                                                key: Key(
+                                                  'Key0so_${listViewClubReviewsRow.id!}',
+                                                ),
+                                                reviewDetails:
+                                                    listViewClubReviewsRow,
+                                              ),
+                                            );
+                                          },
+                                        );
+                                      },
+                                    ),
                                   ),
-                                  Column(
-                                    mainAxisSize: MainAxisSize.max,
-                                    children: [],
+                                  Padding(
+                                    padding: EdgeInsetsDirectional.fromSTEB(
+                                        8.0, 4.0, 8.0, 4.0),
+                                    child: FutureBuilder<List<ClubGalleryRow>>(
+                                      future: ClubGalleryTable().queryRows(
+                                        queryFn: (q) => q.eqOrNull(
+                                          'club_id',
+                                          widget.clubDetails?.id,
+                                        ),
+                                      ),
+                                      builder: (context, snapshot) {
+                                        // Customize what your widget looks like when it's loading.
+                                        if (!snapshot.hasData) {
+                                          return Center(
+                                            child: SizedBox(
+                                              width: 50.0,
+                                              height: 50.0,
+                                              child: CircularProgressIndicator(
+                                                valueColor:
+                                                    AlwaysStoppedAnimation<
+                                                        Color>(
+                                                  FlutterFlowTheme.of(context)
+                                                      .primary,
+                                                ),
+                                              ),
+                                            ),
+                                          );
+                                        }
+                                        List<ClubGalleryRow>
+                                            gridViewClubGalleryRowList =
+                                            snapshot.data!;
+
+                                        return GridView.builder(
+                                          padding: EdgeInsets.zero,
+                                          gridDelegate:
+                                              SliverGridDelegateWithFixedCrossAxisCount(
+                                            crossAxisCount: 2,
+                                            crossAxisSpacing: 10.0,
+                                            mainAxisSpacing: 10.0,
+                                            childAspectRatio: 1.0,
+                                          ),
+                                          scrollDirection: Axis.vertical,
+                                          itemCount:
+                                              gridViewClubGalleryRowList.length,
+                                          itemBuilder:
+                                              (context, gridViewIndex) {
+                                            final gridViewClubGalleryRow =
+                                                gridViewClubGalleryRowList[
+                                                    gridViewIndex];
+                                            return InkWell(
+                                              splashColor: Colors.transparent,
+                                              focusColor: Colors.transparent,
+                                              hoverColor: Colors.transparent,
+                                              highlightColor:
+                                                  Colors.transparent,
+                                              onTap: () async {
+                                                await Navigator.push(
+                                                  context,
+                                                  PageTransition(
+                                                    type:
+                                                        PageTransitionType.fade,
+                                                    child:
+                                                        FlutterFlowExpandedImageView(
+                                                      image: Image.network(
+                                                        valueOrDefault<String>(
+                                                          gridViewClubGalleryRow
+                                                              .imageUrl,
+                                                          'https://picsum.photos/seed/64/600',
+                                                        ),
+                                                        fit: BoxFit.contain,
+                                                      ),
+                                                      allowRotation: false,
+                                                      tag: valueOrDefault<
+                                                          String>(
+                                                        gridViewClubGalleryRow
+                                                            .imageUrl,
+                                                        'https://picsum.photos/seed/64/600' +
+                                                            '$gridViewIndex',
+                                                      ),
+                                                      useHeroAnimation: true,
+                                                    ),
+                                                  ),
+                                                );
+                                              },
+                                              child: Hero(
+                                                tag: valueOrDefault<String>(
+                                                  gridViewClubGalleryRow
+                                                      .imageUrl,
+                                                  'https://picsum.photos/seed/64/600' +
+                                                      '$gridViewIndex',
+                                                ),
+                                                transitionOnUserGestures: true,
+                                                child: ClipRRect(
+                                                  borderRadius:
+                                                      BorderRadius.circular(
+                                                          8.0),
+                                                  child: Image.network(
+                                                    valueOrDefault<String>(
+                                                      gridViewClubGalleryRow
+                                                          .imageUrl,
+                                                      'https://picsum.photos/seed/64/600',
+                                                    ),
+                                                    width: 200.0,
+                                                    height: 200.0,
+                                                    fit: BoxFit.cover,
+                                                  ),
+                                                ),
+                                              ),
+                                            );
+                                          },
+                                        );
+                                      },
+                                    ),
                                   ),
                                   Padding(
                                     padding: EdgeInsetsDirectional.fromSTEB(

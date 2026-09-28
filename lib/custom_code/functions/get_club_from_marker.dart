@@ -15,6 +15,22 @@ import '/flutter_flow/ff_builtin_enums.dart';
 import '/backend/supabase/supabase.dart';
 import '/auth/supabase_auth/auth_util.dart';
 
-double getLatitude(LatLng location) {
-  return location.latitude;
+GolfClubsRow? getClubFromMarker(
+  List<GolfClubsRow> clubs,
+  LatLng tappedLocation,
+) {
+  const double tolerance = 0.000001;
+
+  for (final club in clubs) {
+    final lat = club.latitude;
+    final lng = club.longitude;
+    if (lat == null || lng == null) continue;
+
+    if ((lat - tappedLocation.latitude).abs() < tolerance &&
+        (lng - tappedLocation.longitude).abs() < tolerance) {
+      return club;
+    }
+  }
+
+  return null;
 }

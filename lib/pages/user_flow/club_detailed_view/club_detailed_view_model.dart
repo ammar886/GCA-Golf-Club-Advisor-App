@@ -1,5 +1,6 @@
 import '/backend/supabase/supabase.dart';
 import '/components/fab_widget.dart';
+import '/components/review_widget.dart';
 import '/flutter_flow/flutter_flow_google_map.dart';
 import '/flutter_flow/flutter_flow_util.dart';
 import '/index.dart';
@@ -22,6 +23,8 @@ class ClubDetailedViewModel extends FlutterFlowModel<ClubDetailedViewWidget> {
   int get tabBarPreviousIndex =>
       tabBarController != null ? tabBarController!.previousIndex : 0;
 
+  // Models for review dynamic component.
+  late FlutterFlowDynamicModels<ReviewModel> reviewModels;
   // State field(s) for GoogleMap widget.
   LatLng? googleMapsCenter;
   final googleMapsController = Completer<GoogleMapController>();
@@ -30,12 +33,14 @@ class ClubDetailedViewModel extends FlutterFlowModel<ClubDetailedViewWidget> {
 
   @override
   void initState(BuildContext context) {
+    reviewModels = FlutterFlowDynamicModels(() => ReviewModel());
     fabModel = createModel(context, () => FabModel());
   }
 
   @override
   void dispose() {
     tabBarController?.dispose();
+    reviewModels.dispose();
     fabModel.dispose();
   }
 }
