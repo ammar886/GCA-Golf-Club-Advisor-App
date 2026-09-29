@@ -7,6 +7,8 @@ class EditProfileModel extends FlutterFlowModel<EditProfileWidget> {
 
   FFUploadedFile? profilePicture;
 
+  String? selectedClub;
+
   ///  State fields for stateful widgets in this page.
 
   final formKey = GlobalKey<FormState>();
@@ -44,18 +46,6 @@ class EditProfileModel extends FlutterFlowModel<EditProfileWidget> {
   String? Function(BuildContext, String?)? textController3Validator;
   String? _textController3Validator(BuildContext context, String? val) {
     if (val == null || val.isEmpty) {
-      return 'Home Club can\'t be left empty';
-    }
-
-    return null;
-  }
-
-  // State field(s) for TextField widget.
-  FocusNode? textFieldFocusNode4;
-  TextEditingController? textController4;
-  String? Function(BuildContext, String?)? textController4Validator;
-  String? _textController4Validator(BuildContext context, String? val) {
-    if (val == null || val.isEmpty) {
       return 'Golf Handicap can\'t be left empty';
     }
 
@@ -72,7 +62,6 @@ class EditProfileModel extends FlutterFlowModel<EditProfileWidget> {
     textController1Validator = _textController1Validator;
     textController2Validator = _textController2Validator;
     textController3Validator = _textController3Validator;
-    textController4Validator = _textController4Validator;
   }
 
   @override
@@ -85,8 +74,5 @@ class EditProfileModel extends FlutterFlowModel<EditProfileWidget> {
 
     textFieldFocusNode3?.dispose();
     textController3?.dispose();
-
-    textFieldFocusNode4?.dispose();
-    textController4?.dispose();
   }
 }

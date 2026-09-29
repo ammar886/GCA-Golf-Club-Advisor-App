@@ -266,6 +266,14 @@ GoRouter createRouter(AppStateNotifier appStateNotifier) => GoRouter(
           name: SupportWidget.routeName,
           path: SupportWidget.routePath,
           builder: (context, params) => SupportWidget(),
+        ),
+        FFRoute(
+          name: TopTenWidget.routeName,
+          path: TopTenWidget.routePath,
+          requireAuth: true,
+          builder: (context, params) => params.isEmpty
+              ? NavBarPage(initialPage: 'topTen')
+              : TopTenWidget(),
         )
       ].map((r) => r.toRoute(appStateNotifier)).toList(),
     );
