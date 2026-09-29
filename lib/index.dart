@@ -35,3 +35,4 @@ export '/pages/admin/reviews_management/reviews_management_widget.dart'
 export '/pages/admin/review_detail_view/review_detail_view_widget.dart'
     show ReviewDetailViewWidget;
 export '/support/support_widget.dart' show SupportWidget;
+export '/pages/top_ten/top_ten_widget.dart' show TopTenWidget;

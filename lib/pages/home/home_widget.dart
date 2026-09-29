@@ -142,7 +142,7 @@ class _HomeWidgetState extends State<HomeWidget> {
                                 style: TextStyle(),
                               ),
                               TextSpan(
-                                text: 'A',
+                                text: 'a',
                                 style: TextStyle(
                                   color: FlutterFlowTheme.of(context).primary,
                                   fontWeight: FontWeight.w800,

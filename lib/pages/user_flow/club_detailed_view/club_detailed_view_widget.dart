@@ -2818,6 +2818,10 @@ class _ClubDetailedViewWidgetState extends State<ClubDetailedViewWidget>
                                               'club_id',
                                               widget.clubDetails?.id,
                                             )
+                                            .eqOrNull(
+                                              'status',
+                                              'approved',
+                                            )
                                             .order('created_at'),
                                       ),
                                       builder: (context, snapshot) {

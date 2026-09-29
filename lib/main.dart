@@ -183,6 +183,7 @@ class _NavBarPageState extends State<NavBarPage> {
     final tabs = {
       'Home': HomeWidget(),
       'Map': MapWidget(),
+      'topTen': TopTenWidget(),
       'UserProfile': UserProfileWidget(),
     };
     final currentIndex = tabs.keys.toList().indexOf(_currentPageName);
@@ -215,6 +216,13 @@ class _NavBarPageState extends State<NavBarPage> {
               Icons.assistant_navigation,
             ),
             label: 'Map',
+            tooltip: '',
+          ),
+          BottomNavigationBarItem(
+            icon: Icon(
+              Icons.airline_stops,
+            ),
+            label: 'Top 10',
             tooltip: '',
           ),
           BottomNavigationBarItem(
