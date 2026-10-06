@@ -153,9 +153,11 @@ class _GolferCardWidgetState extends State<GolferCardWidget> {
                 Expanded(
                   child: Align(
                     alignment: AlignmentDirectional(1.0, 0.0),
-                    child: Padding(
-                      padding:
-                          EdgeInsetsDirectional.fromSTEB(0.0, 0.0, 0.0, 10.0),
+                    child: Container(
+                      width: 90.0,
+                      height: 100.0,
+                      decoration: BoxDecoration(),
+                      alignment: AlignmentDirectional(1.0, 1.0),
                       child: Container(
                         width: 65.0,
                         height: 65.0,
