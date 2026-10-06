@@ -1188,7 +1188,7 @@ class _WriteReviewWidgetState extends State<WriteReviewWidget> {
                             mainAxisSize: MainAxisSize.max,
                             children: [
                               FaIcon(
-                                FontAwesomeIcons.smile,
+                                FaIconData(FontAwesomeIcons.smile.data),
                                 color: FlutterFlowTheme.of(context).primary,
                                 size: 24.0,
                               ),

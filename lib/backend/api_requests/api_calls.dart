@@ -26,13 +26,13 @@ class SendBrevoMailCall {
   },
   "to": [
     {
-      "email": "${escapeStringForJson(email)}"
+      "email": ${email == null ? 'null' : '"${escapeStringForJson(email)}"'}
     }
   ],
   "templateId": ${id},
   "params": {
-"email": "${escapeStringForJson(email)}",
-    "password": "${escapeStringForJson(password)}"
+"email": ${email == null ? 'null' : '"${escapeStringForJson(email)}"'},
+    "password": ${password == null ? 'null' : '"${escapeStringForJson(password)}"'}
 
   },
   "htmlContent": "<html><head></head><body><p>Hello,</p>This is my first transactional email sent from Brevo.</p></body></html>"
@@ -83,10 +83,10 @@ class SupportMailCall {
   ],
   "templateId": ${id},
   "params": {
-"email": "${escapeStringForJson(email)}",
-"name": "${escapeStringForJson(name)}",
-"subject": "${escapeStringForJson(subject)}",
-"description": "${escapeStringForJson(description)}"
+"email": ${email == null ? 'null' : '"${escapeStringForJson(email)}"'},
+"name": ${name == null ? 'null' : '"${escapeStringForJson(name)}"'},
+"subject": ${subject == null ? 'null' : '"${escapeStringForJson(subject)}"'},
+"description": ${description == null ? 'null' : '"${escapeStringForJson(description)}"'}
    
   },
   "htmlContent": "<html><head></head><body><p>Hello,</p>This is my first transactional email sent from Brevo.</p></body></html>"
@@ -125,10 +125,10 @@ class CreateSubAdminCall {
 
     final ffApiRequestBody = '''
 {
-    "email": "${escapeStringForJson(email)}",
-    "password": "${escapeStringForJson(password)}",
-    "first_name": "${escapeStringForJson(firstName)}",
-    "last_name": "${escapeStringForJson(lastName)}"
+    "email": ${email == null ? 'null' : '"${escapeStringForJson(email)}"'},
+    "password": ${password == null ? 'null' : '"${escapeStringForJson(password)}"'},
+    "first_name": ${firstName == null ? 'null' : '"${escapeStringForJson(firstName)}"'},
+    "last_name": ${lastName == null ? 'null' : '"${escapeStringForJson(lastName)}"'}
 }''';
     return ApiManager.instance.makeApiCall(
       callName: 'createSubAdmin',
@@ -163,7 +163,7 @@ class UpdatePasswordCall {
     key ??= FFDevEnvironmentValues().supabaseKey;
 
     final ffApiRequestBody = '''
-{ "currentPassword": "${escapeStringForJson(currentPass)}", "newPassword": "${escapeStringForJson(newPass)}" }''';
+{ "currentPassword": ${currentPass == null ? 'null' : '"${escapeStringForJson(currentPass)}"'}, "newPassword": ${newPass == null ? 'null' : '"${escapeStringForJson(newPass)}"'} }''';
     return ApiManager.instance.makeApiCall(
       callName: 'updatePassword',
       apiUrl:
@@ -240,9 +240,6 @@ String? escapeStringForJson(String? input) {
   if (input == null) {
     return null;
   }
-  return input
-      .replaceAll('\\', '\\\\')
-      .replaceAll('"', '\\"')
-      .replaceAll('\n', '\\n')
-      .replaceAll('\t', '\\t');
+  final encoded = jsonEncode(input);
+  return encoded.substring(1, encoded.length - 1);
 }

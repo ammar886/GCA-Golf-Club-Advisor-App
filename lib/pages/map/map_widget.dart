@@ -136,39 +136,41 @@ class _MapWidgetState extends State<MapWidget> {
               width: double.infinity,
               height: double.infinity,
               decoration: BoxDecoration(),
-              child: Container(
-                width: double.infinity,
-                height: double.infinity,
-                child: custom_widgets.NearestClubsMap(
+              child: Builder(
+                builder: (context) => Container(
                   width: double.infinity,
                   height: double.infinity,
-                  clubs: containerGolfClubsRowList,
-                  userLocation: currentUserLocationValue!,
-                  onClubTap: (club) async {
-                    _model.selectedMarker = club;
-                    safeSetState(() {});
-                    await showModalBottomSheet(
-                      isScrollControlled: true,
-                      backgroundColor: Colors.transparent,
-                      enableDrag: false,
-                      useSafeArea: true,
-                      context: context,
-                      builder: (context) {
-                        return GestureDetector(
-                          onTap: () {
-                            FocusScope.of(context).unfocus();
-                            FocusManager.instance.primaryFocus?.unfocus();
-                          },
-                          child: Padding(
-                            padding: MediaQuery.viewInsetsOf(context),
-                            child: ClubMapCardWidget(
-                              clubDetails: _model.selectedMarker,
+                  child: custom_widgets.NearestClubsMap(
+                    width: double.infinity,
+                    height: double.infinity,
+                    clubs: containerGolfClubsRowList,
+                    userLocation: currentUserLocationValue!,
+                    onClubTap: (club) async {
+                      _model.selectedMarker = club;
+                      safeSetState(() {});
+                      await showDialog(
+                        context: context,
+                        builder: (dialogContext) {
+                          return Dialog(
+                            elevation: 0,
+                            insetPadding: EdgeInsets.zero,
+                            backgroundColor: Colors.transparent,
+                            alignment: AlignmentDirectional(0.0, 1.0)
+                                .resolve(Directionality.of(context)),
+                            child: GestureDetector(
+                              onTap: () {
+                                FocusScope.of(dialogContext).unfocus();
+                                FocusManager.instance.primaryFocus?.unfocus();
+                              },
+                              child: ClubMapCardWidget(
+                                clubDetails: _model.selectedMarker,
+                              ),
                             ),
-                          ),
-                        );
-                      },
-                    ).then((value) => safeSetState(() {}));
-                  },
+                          );
+                        },
+                      );
+                    },
+                  ),
                 ),
               ),
             );

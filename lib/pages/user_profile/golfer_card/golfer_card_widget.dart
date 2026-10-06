@@ -128,6 +128,7 @@ class _GolferCardWidgetState extends State<GolferCardWidget> {
                       ),
                       Text(
                         'GOLFER PROFILE',
+                        textAlign: TextAlign.center,
                         style: FlutterFlowTheme.of(context).bodyMedium.override(
                               font: GoogleFonts.inter(
                                 fontWeight: FlutterFlowTheme.of(context)

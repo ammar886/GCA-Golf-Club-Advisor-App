@@ -357,23 +357,15 @@ packages:
     source: hosted
     version: "0.1.1"
   flutter_secure_storage_linux:
-    dependency: "direct main"
+    dependency: transitive
     description:
       name: flutter_secure_storage_linux
       sha256: "9b4b73127e857cd3117d43a70fa3dddadb6e0b253be62e6a6ab85caa0742182c"
       url: "https://pub.dev"
     source: hosted
     version: "2.0.1"
-  flutter_secure_storage_macos:
-    dependency: "direct main"
-    description:
-      name: flutter_secure_storage_macos
-      sha256: "75894eb6b402ac7f7f5ee5487d651b87855a338e26eb6993f4b2fce33013a615"
-      url: "https://pub.dev"
-    source: hosted
-    version: "4.0.0"
   flutter_secure_storage_platform_interface:
-    dependency: "direct main"
+    dependency: transitive
     description:
       name: flutter_secure_storage_platform_interface
       sha256: "8ceea1223bee3c6ac1a22dabd8feefc550e4729b3675de4b5900f55afcb435d6"
@@ -381,7 +373,7 @@ packages:
     source: hosted
     version: "2.0.1"
   flutter_secure_storage_web:
-    dependency: "direct main"
+    dependency: transitive
     description:
       name: flutter_secure_storage_web
       sha256: "4c3f233e739545c6cb09286eeec1cc4744138372b985113acc904f7263bef517"
@@ -389,7 +381,7 @@ packages:
     source: hosted
     version: "2.0.0"
   flutter_secure_storage_windows:
-    dependency: "direct main"
+    dependency: transitive
     description:
       name: flutter_secure_storage_windows
       sha256: ff32af20f70a8d0e59b2938fc92de35b54a74671041c814275afd80e27df9f21
@@ -426,10 +418,10 @@ packages:
     dependency: "direct main"
     description:
       name: font_awesome_flutter
-      sha256: "275ff26905134bcb59417cf60ad979136f1f8257f2f449914b2c3e05bbb4cd6f"
+      sha256: "09dcde8ab90ffae1a7d65ff2ef96fc62a17ad9d0ce7c127b317ded676b0d5935"
       url: "https://pub.dev"
     source: hosted
-    version: "10.7.0"
+    version: "11.0.0"
   from_css_color:
     dependency: "direct main"
     description:
@@ -690,10 +682,10 @@ packages:
     dependency: "direct main"
     description:
       name: intl
-      sha256: "3df61194eb431efc39c4ceba583b95633a403f46c9fd341e550ce0bfa50e9aa5"
+      sha256: "1ca20c894b1717686a2319b8548763d812bc0aabdac580420a44c5178c57a867"
       url: "https://pub.dev"
     source: hosted
-    version: "0.20.2"
+    version: "0.20.3"
   iregexp:
     dependency: transitive
     description:
@@ -834,10 +826,10 @@ packages:
     dependency: "direct main"
     description:
       name: page_transition
-      sha256: dee976b1f23de9bbef5cd512fe567e9f6278caee11f5eaca9a2115c19dc49ef6
+      sha256: "61dac670e80ebdd7da847c21841e1dfd8f9ab483b3a0c5fddc877ad8d23b69ee"
       url: "https://pub.dev"
     source: hosted
-    version: "2.1.0"
+    version: "2.2.2"
   path:
     dependency: transitive
     description:
@@ -934,6 +926,38 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "2.1.8"
+  pointer_interceptor:
+    dependency: "direct main"
+    description:
+      name: pointer_interceptor
+      sha256: "57210410680379aea8b1b7ed6ae0c3ad349bfd56fe845b8ea934a53344b9d523"
+      url: "https://pub.dev"
+    source: hosted
+    version: "0.10.1+2"
+  pointer_interceptor_ios:
+    dependency: "direct main"
+    description:
+      name: pointer_interceptor_ios
+      sha256: a6906772b3205b42c44614fcea28f818b1e5fdad73a4ca742a7bd49818d9c917
+      url: "https://pub.dev"
+    source: hosted
+    version: "0.10.1"
+  pointer_interceptor_platform_interface:
+    dependency: "direct main"
+    description:
+      name: pointer_interceptor_platform_interface
+      sha256: "0597b0560e14354baeb23f8375cd612e8bd4841bf8306ecb71fcd0bb78552506"
+      url: "https://pub.dev"
+    source: hosted
+    version: "0.10.0+1"
+  pointer_interceptor_web:
+    dependency: "direct main"
+    description:
+      name: pointer_interceptor_web
+      sha256: "7a7087782110f8c1827170660b09f8aa893e0e9a61431dbbe2ac3fc482e8c044"
+      url: "https://pub.dev"
+    source: hosted
+    version: "0.10.2+1"
   postgrest:
     dependency: "direct main"
     description:
@@ -1367,26 +1391,26 @@ packages:
     dependency: "direct main"
     description:
       name: webview_flutter_android
-      sha256: f6e6afef6e234801da77170f7a1847ded8450778caf2fe13979d140484be3678
+      sha256: "2a03df01df2fd30b075d1e7f24c28aee593f2e5d5ac4c3c4283c5eda63717b24"
       url: "https://pub.dev"
     source: hosted
-    version: "4.7.0"
+    version: "4.10.13"
   webview_flutter_platform_interface:
     dependency: "direct main"
     description:
       name: webview_flutter_platform_interface
-      sha256: f0dc2dc3a2b1e3a6abdd6801b9355ebfeb3b8f6cde6b9dc7c9235909c4a1f147
+      sha256: "63d26ee3aca7256a83ccb576a50272edd7cfc80573a4305caa98985feb493ee0"
       url: "https://pub.dev"
     source: hosted
-    version: "2.13.1"
+    version: "2.14.0"
   webview_flutter_wkwebview:
     dependency: "direct main"
     description:
       name: webview_flutter_wkwebview
-      sha256: a3d461fe3467014e05f3ac4962e5fdde2a4bf44c561cb53e9ae5c586600fdbc3
+      sha256: fc0af89d403e1c053f03d023d97550412fa79f35332e2939514c82e6fe633198
       url: "https://pub.dev"
     source: hosted
-    version: "3.22.0"
+    version: "3.23.8"
   win32:
     dependency: transitive
     description:

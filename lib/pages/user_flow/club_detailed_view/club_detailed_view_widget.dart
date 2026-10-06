@@ -14,6 +14,7 @@ import 'package:flutter/scheduler.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:pointer_interceptor/pointer_interceptor.dart';
 import 'club_detailed_view_model.dart';
 export 'club_detailed_view_model.dart';
 
@@ -2451,7 +2452,8 @@ class _ClubDetailedViewWidgetState extends State<ClubDetailedViewWidget>
                                               mainAxisSize: MainAxisSize.max,
                                               children: [
                                                 FaIcon(
-                                                  FontAwesomeIcons.smile,
+                                                  FaIconData(FontAwesomeIcons
+                                                      .smile.data),
                                                   color: FlutterFlowTheme.of(
                                                           context)
                                                       .primary,
@@ -3527,32 +3529,24 @@ class _ClubDetailedViewWidgetState extends State<ClubDetailedViewWidget>
                     context: context,
                     phone: false,
                   ))
-                    Padding(
-                      padding:
-                          EdgeInsetsDirectional.fromSTEB(0.0, 0.0, 16.0, 25.0),
-                      child: InkWell(
-                        splashColor: Colors.transparent,
-                        focusColor: Colors.transparent,
-                        hoverColor: Colors.transparent,
-                        highlightColor: Colors.transparent,
-                        onTap: () async {
-                          context.pushNamed(
-                            WriteReviewWidget.routeName,
-                            queryParameters: {
-                              'clubDetails': serializeParam(
-                                widget.clubDetails,
-                                ParamType.SupabaseRow,
-                              ),
-                            }.withoutNulls,
-                            extra: <String, dynamic>{
-                              'clubDetails': widget.clubDetails,
-                            },
-                          );
-                        },
-                        child: wrapWithModel(
-                          model: _model.fabModel,
-                          updateCallback: () => safeSetState(() {}),
-                          child: FabWidget(),
+                    PointerInterceptor(
+                      intercepting: isWeb,
+                      child: Padding(
+                        padding: EdgeInsetsDirectional.fromSTEB(
+                            0.0, 0.0, 16.0, 25.0),
+                        child: InkWell(
+                          splashColor: Colors.transparent,
+                          focusColor: Colors.transparent,
+                          hoverColor: Colors.transparent,
+                          highlightColor: Colors.transparent,
+                          onTap: () async {
+                            context.pushNamed(WriteReviewWidget.routeName);
+                          },
+                          child: wrapWithModel(
+                            model: _model.fabModel,
+                            updateCallback: () => safeSetState(() {}),
+                            child: FabWidget(),
+                          ),
                         ),
                       ),
                     ),

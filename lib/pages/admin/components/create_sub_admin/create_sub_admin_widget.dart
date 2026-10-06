@@ -187,7 +187,7 @@ class _CreateSubAdminWidgetState extends State<CreateSubAdminWidget> {
                                 .secondaryBackground,
                             contentPadding: EdgeInsets.all(16.0),
                             prefixIcon: Icon(
-                              FontAwesomeIcons.user,
+                              FontAwesomeIcons.user.data,
                               color: FlutterFlowTheme.of(context).primary,
                               size: 24.0,
                             ),
@@ -305,7 +305,7 @@ class _CreateSubAdminWidgetState extends State<CreateSubAdminWidget> {
                                 .secondaryBackground,
                             contentPadding: EdgeInsets.all(16.0),
                             prefixIcon: Icon(
-                              FontAwesomeIcons.user,
+                              FontAwesomeIcons.user.data,
                               color: FlutterFlowTheme.of(context).primary,
                               size: 24.0,
                             ),
@@ -423,7 +423,7 @@ class _CreateSubAdminWidgetState extends State<CreateSubAdminWidget> {
                                 .secondaryBackground,
                             contentPadding: EdgeInsets.all(16.0),
                             prefixIcon: Icon(
-                              FontAwesomeIcons.user,
+                              FontAwesomeIcons.user.data,
                               color: FlutterFlowTheme.of(context).primary,
                               size: 24.0,
                             ),
