@@ -55,11 +55,7 @@ android {
     defaultConfig {
         // TODO: Specify your own unique Application ID (https://developer.android.com/studio/build/application-id.html).
         applicationId "com.jeremy.golfclubadvisor"
-<<<<<<< HEAD
-        minSdkVersion flutter.minSdkVersion
-=======
         minSdkVersion 24
->>>>>>> origin/flutterflow
         targetSdkVersion 36
         versionCode flutterVersionCode.toInteger()
         versionName flutterVersionName
