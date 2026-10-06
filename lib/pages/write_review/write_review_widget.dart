@@ -1361,148 +1361,166 @@ class _WriteReviewWidgetState extends State<WriteReviewWidget> {
                         mainAxisSize: MainAxisSize.max,
                         children: [
                           Expanded(
-                            child: InkWell(
-                              splashColor: Colors.transparent,
-                              focusColor: Colors.transparent,
-                              hoverColor: Colors.transparent,
-                              highlightColor: Colors.transparent,
-                              onTap: () async {
-                                _model.playToggle = true;
-                                safeSetState(() {});
-                              },
-                              child: Container(
-                                width: 100.0,
-                                height: 40.0,
-                                decoration: BoxDecoration(
-                                  color: FlutterFlowTheme.of(
-                                    context,
-                                  ).secondaryBackground,
-                                  borderRadius: BorderRadius.circular(8.0),
-                                  border: Border.all(
+                            child: Material(
+                              color: Colors.transparent,
+                              child: InkWell(
+                                borderRadius: BorderRadius.circular(8.0),
+                                onTap: () {
+                                  safeSetState(() {
+                                    _model.playToggle =
+                                        _model.playToggle == true ? null : true;
+                                  });
+                                },
+                                child: AnimatedContainer(
+                                  duration: const Duration(milliseconds: 180),
+                                  curve: Curves.easeInOut,
+                                  height: 44.0,
+                                  decoration: BoxDecoration(
                                     color: _model.playToggle == true
                                         ? FlutterFlowTheme.of(context).primary
                                         : FlutterFlowTheme.of(
                                             context,
-                                          ).secondaryText,
-                                  ),
-                                ),
-                                child: Row(
-                                  mainAxisSize: MainAxisSize.max,
-                                  mainAxisAlignment: MainAxisAlignment.center,
-                                  children: [
-                                    Icon(
-                                      Icons.thumb_up_off_alt,
+                                          ).secondaryBackground,
+                                    borderRadius: BorderRadius.circular(8.0),
+                                    border: Border.all(
                                       color: _model.playToggle == true
                                           ? FlutterFlowTheme.of(context).primary
                                           : FlutterFlowTheme.of(
                                               context,
-                                            ).secondaryText,
-                                      size: 18.0,
+                                            ).alternate,
+                                      width: _model.playToggle == true ? 1.5 : 1.0,
                                     ),
-                                    Text(
-                                      'Yes',
-                                      style: FlutterFlowTheme.of(context)
-                                          .bodyMedium
-                                          .override(
-                                            font: GoogleFonts.inter(
-                                              fontWeight: FlutterFlowTheme.of(
+                                  ),
+                                  child: Row(
+                                    mainAxisSize: MainAxisSize.max,
+                                    mainAxisAlignment: MainAxisAlignment.center,
+                                    children: [
+                                      Icon(
+                                        _model.playToggle == true
+                                            ? Icons.thumb_up_alt_rounded
+                                            : Icons.thumb_up_off_alt,
+                                        color: _model.playToggle == true
+                                            ? Colors.white
+                                            : FlutterFlowTheme.of(
                                                 context,
-                                              ).bodyMedium.fontWeight,
-                                              fontStyle: FlutterFlowTheme.of(
-                                                context,
-                                              ).bodyMedium.fontStyle,
+                                              ).secondaryText,
+                                        size: 18.0,
+                                      ),
+                                      Text(
+                                        'Yes',
+                                        style: FlutterFlowTheme.of(context)
+                                            .bodyMedium
+                                            .override(
+                                              font: GoogleFonts.inter(
+                                                fontWeight:
+                                                    _model.playToggle == true
+                                                        ? FontWeight.w600
+                                                        : FontWeight.normal,
+                                                fontStyle:
+                                                    FlutterFlowTheme.of(
+                                                      context,
+                                                    ).bodyMedium.fontStyle,
+                                              ),
+                                              color: _model.playToggle == true
+                                                  ? Colors.white
+                                                  : FlutterFlowTheme.of(
+                                                      context,
+                                                    ).secondaryText,
+                                              fontSize: 13.0,
+                                              letterSpacing: 0.0,
+                                              fontWeight:
+                                                  _model.playToggle == true
+                                                      ? FontWeight.w600
+                                                      : FontWeight.normal,
                                             ),
-                                            color: _model.playToggle == true
-                                                ? FlutterFlowTheme.of(
-                                                    context,
-                                                  ).primary
-                                                : FlutterFlowTheme.of(
-                                                    context,
-                                                  ).secondaryText,
-                                            fontSize: 12.0,
-                                            letterSpacing: 0.0,
-                                            fontWeight: FlutterFlowTheme.of(
-                                              context,
-                                            ).bodyMedium.fontWeight,
-                                          ),
-                                    ),
-                                  ].divide(SizedBox(width: 8.0)),
+                                      ),
+                                    ].divide(const SizedBox(width: 8.0)),
+                                  ),
                                 ),
                               ),
                             ),
                           ),
                           Expanded(
-                            child: InkWell(
-                              splashColor: Colors.transparent,
-                              focusColor: Colors.transparent,
-                              hoverColor: Colors.transparent,
-                              highlightColor: Colors.transparent,
-                              onTap: () async {
-                                _model.playToggle = false;
-                                safeSetState(() {});
-                              },
-                              child: Container(
-                                width: 100.0,
-                                height: 40.0,
-                                decoration: BoxDecoration(
-                                  color: FlutterFlowTheme.of(
-                                    context,
-                                  ).secondaryBackground,
-                                  borderRadius: BorderRadius.circular(8.0),
-                                  border: Border.all(
+                            child: Material(
+                              color: Colors.transparent,
+                              child: InkWell(
+                                borderRadius: BorderRadius.circular(8.0),
+                                onTap: () {
+                                  safeSetState(() {
+                                    _model.playToggle =
+                                        _model.playToggle == false ? null : false;
+                                  });
+                                },
+                                child: AnimatedContainer(
+                                  duration: const Duration(milliseconds: 180),
+                                  curve: Curves.easeInOut,
+                                  height: 44.0,
+                                  decoration: BoxDecoration(
                                     color: _model.playToggle == false
-                                        ? FlutterFlowTheme.of(context).primary
+                                        ? FlutterFlowTheme.of(context).error
                                         : FlutterFlowTheme.of(
                                             context,
-                                          ).secondaryText,
-                                  ),
-                                ),
-                                child: Row(
-                                  mainAxisSize: MainAxisSize.max,
-                                  mainAxisAlignment: MainAxisAlignment.center,
-                                  children: [
-                                    Icon(
-                                      Icons.thumb_down_outlined,
+                                          ).secondaryBackground,
+                                    borderRadius: BorderRadius.circular(8.0),
+                                    border: Border.all(
                                       color: _model.playToggle == false
-                                          ? FlutterFlowTheme.of(context).primary
+                                          ? FlutterFlowTheme.of(context).error
                                           : FlutterFlowTheme.of(
                                               context,
-                                            ).secondaryText,
-                                      size: 18.0,
+                                            ).alternate,
+                                      width: _model.playToggle == false ? 1.5 : 1.0,
                                     ),
-                                    Text(
-                                      'No',
-                                      style: FlutterFlowTheme.of(context)
-                                          .bodyMedium
-                                          .override(
-                                            font: GoogleFonts.inter(
-                                              fontWeight: FlutterFlowTheme.of(
+                                  ),
+                                  child: Row(
+                                    mainAxisSize: MainAxisSize.max,
+                                    mainAxisAlignment: MainAxisAlignment.center,
+                                    children: [
+                                      Icon(
+                                        _model.playToggle == false
+                                            ? Icons.thumb_down_alt_rounded
+                                            : Icons.thumb_down_outlined,
+                                        color: _model.playToggle == false
+                                            ? Colors.white
+                                            : FlutterFlowTheme.of(
                                                 context,
-                                              ).bodyMedium.fontWeight,
-                                              fontStyle: FlutterFlowTheme.of(
-                                                context,
-                                              ).bodyMedium.fontStyle,
+                                              ).secondaryText,
+                                        size: 18.0,
+                                      ),
+                                      Text(
+                                        'No',
+                                        style: FlutterFlowTheme.of(context)
+                                            .bodyMedium
+                                            .override(
+                                              font: GoogleFonts.inter(
+                                                fontWeight:
+                                                    _model.playToggle == false
+                                                        ? FontWeight.w600
+                                                        : FontWeight.normal,
+                                                fontStyle:
+                                                    FlutterFlowTheme.of(
+                                                      context,
+                                                    ).bodyMedium.fontStyle,
+                                              ),
+                                              color: _model.playToggle == false
+                                                  ? Colors.white
+                                                  : FlutterFlowTheme.of(
+                                                      context,
+                                                    ).secondaryText,
+                                              fontSize: 13.0,
+                                              letterSpacing: 0.0,
+                                              fontWeight:
+                                                  _model.playToggle == false
+                                                      ? FontWeight.w600
+                                                      : FontWeight.normal,
                                             ),
-                                            color: _model.playToggle == false
-                                                ? FlutterFlowTheme.of(
-                                                    context,
-                                                  ).primary
-                                                : FlutterFlowTheme.of(
-                                                    context,
-                                                  ).secondaryText,
-                                            fontSize: 12.0,
-                                            letterSpacing: 0.0,
-                                            fontWeight: FlutterFlowTheme.of(
-                                              context,
-                                            ).bodyMedium.fontWeight,
-                                          ),
-                                    ),
-                                  ].divide(SizedBox(width: 8.0)),
+                                      ),
+                                    ].divide(const SizedBox(width: 8.0)),
+                                  ),
                                 ),
                               ),
                             ),
                           ),
-                        ].divide(SizedBox(width: 12.0)),
+                        ].divide(const SizedBox(width: 12.0)),
                       ),
                       Text(
                         'Your review *',

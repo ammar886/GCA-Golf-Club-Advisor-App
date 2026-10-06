@@ -63,7 +63,18 @@ class _GolfClubDetailsWidgetState extends State<GolfClubDetailsWidget> {
         backgroundColor: FlutterFlowTheme.of(context).primaryBackground,
         floatingActionButton: FloatingActionButton.extended(
           onPressed: () async {
-            context.goNamed(WriteReviewWidget.routeName);
+            context.pushNamed(
+              WriteReviewWidget.routeName,
+              queryParameters: {
+                'clubDetails': serializeParam(
+                  widget.clubDetails,
+                  ParamType.SupabaseRow,
+                ),
+              }.withoutNulls,
+              extra: <String, dynamic>{
+                'clubDetails': widget.clubDetails,
+              },
+            );
           },
           backgroundColor: FlutterFlowTheme.of(context).primary,
           icon: Icon(

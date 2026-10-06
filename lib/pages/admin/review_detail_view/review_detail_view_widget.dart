@@ -1290,8 +1290,8 @@ class _ReviewDetailViewWidgetState extends State<ReviewDetailViewWidget> {
                                       .secondaryBackground,
                                   borderRadius: BorderRadius.circular(8.0),
                                   border: Border.all(
-                                    color: widget.review?.playAgain == true
-                                        ? FlutterFlowTheme.of(context).primary
+                                    color: widget.review?.playAgain == false
+                                        ? FlutterFlowTheme.of(context).error
                                         : FlutterFlowTheme.of(context)
                                             .secondaryText,
                                   ),
@@ -1302,8 +1302,8 @@ class _ReviewDetailViewWidgetState extends State<ReviewDetailViewWidget> {
                                   children: [
                                     Icon(
                                       Icons.thumb_down_outlined,
-                                      color: widget.review?.playAgain == true
-                                          ? FlutterFlowTheme.of(context).primary
+                                      color: widget.review?.playAgain == false
+                                          ? FlutterFlowTheme.of(context).error
                                           : FlutterFlowTheme.of(context)
                                               .primaryText,
                                       size: 18.0,
@@ -1324,9 +1324,9 @@ class _ReviewDetailViewWidgetState extends State<ReviewDetailViewWidget> {
                                                       .fontStyle,
                                             ),
                                             color: widget.review?.playAgain ==
-                                                    true
+                                                    false
                                                 ? FlutterFlowTheme.of(context)
-                                                    .primary
+                                                    .error
                                                 : FlutterFlowTheme.of(context)
                                                     .primaryText,
                                             fontSize: 12.0,
