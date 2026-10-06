@@ -48,7 +48,7 @@ class _ClubMapCardWidgetState extends State<ClubMapCardWidget> {
   @override
   Widget build(BuildContext context) {
     return Padding(
-      padding: EdgeInsetsDirectional.fromSTEB(0.0, 0.0, 0.0, 25.0),
+      padding: EdgeInsetsDirectional.fromSTEB(16.0, 0.0, 16.0, 25.0),
       child: InkWell(
         splashColor: Colors.transparent,
         focusColor: Colors.transparent,
@@ -82,7 +82,10 @@ class _ClubMapCardWidgetState extends State<ClubMapCardWidget> {
               children: [
                 Expanded(
                   child: ClipRRect(
-                    borderRadius: BorderRadius.circular(0.0),
+                    borderRadius: BorderRadius.only(
+                      topLeft: Radius.circular(16.0),
+                      topRight: Radius.circular(16.0),
+                    ),
                     child: Image.network(
                       valueOrDefault<String>(
                         widget.clubDetails?.imageUrl,
@@ -157,6 +160,7 @@ class _ClubMapCardWidgetState extends State<ClubMapCardWidget> {
                                     widget.clubDetails?.address,
                                     'address',
                                   ),
+                                  textAlign: TextAlign.start,
                                   maxLines: 2,
                                   style: FlutterFlowTheme.of(context)
                                       .bodyMedium
