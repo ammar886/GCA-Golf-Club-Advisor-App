@@ -1,5 +1,5 @@
 import '/backend/supabase/supabase.dart';
-import '/components/club_card_wide/club_card_wide_widget.dart';
+import '/components/club_card_top_ten/club_card_top_ten_widget.dart';
 import '/components/loader_widget.dart';
 import '/flutter_flow/flutter_flow_util.dart';
 import '/index.dart';
@@ -17,20 +17,21 @@ class TopTenModel extends FlutterFlowModel<TopTenWidget> {
 
   // Stores action output result for [Backend Call - Query Rows] action in topTen widget.
   List<UsersRow>? currentUser;
-  // Models for ClubCardWide.
-  late FlutterFlowDynamicModels<ClubCardWideModel> clubCardWideModels;
+  // Models for ClubCardTopTen dynamic component.
+  late FlutterFlowDynamicModels<ClubCardTopTenModel> clubCardTopTenModels;
   // Model for loader component.
   late LoaderModel loaderModel;
 
   @override
   void initState(BuildContext context) {
-    clubCardWideModels = FlutterFlowDynamicModels(() => ClubCardWideModel());
+    clubCardTopTenModels =
+        FlutterFlowDynamicModels(() => ClubCardTopTenModel());
     loaderModel = createModel(context, () => LoaderModel());
   }
 
   @override
   void dispose() {
-    clubCardWideModels.dispose();
+    clubCardTopTenModels.dispose();
     loaderModel.dispose();
   }
 }

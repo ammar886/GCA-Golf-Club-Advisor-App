@@ -1,12 +1,14 @@
 import '/auth/supabase_auth/auth_util.dart';
 import '/backend/supabase/supabase.dart';
-import '/components/club_card_wide/club_card_wide_widget.dart';
+import '/components/club_card_top_ten/club_card_top_ten_widget.dart';
 import '/components/loader_widget.dart';
+import '/flutter_flow/ff_builtin_enums.dart';
 import '/flutter_flow/flutter_flow_theme.dart';
 import '/flutter_flow/flutter_flow_util.dart';
 import '/index.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/scheduler.dart';
+import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'top_ten_model.dart';
 export 'top_ten_model.dart';
@@ -101,57 +103,43 @@ class _TopTenWidgetState extends State<TopTenWidget> {
                           text: TextSpan(
                             children: [
                               TextSpan(
-                                text: 'G',
+                                text: 'TOP',
                                 style: FlutterFlowTheme.of(context)
                                     .headlineMedium
                                     .override(
                                       font: GoogleFonts.plusJakartaSans(
-                                        fontWeight: FontWeight.w800,
+                                        fontWeight: FontWeight.w900,
                                         fontStyle: FlutterFlowTheme.of(context)
                                             .headlineMedium
                                             .fontStyle,
                                       ),
                                       color: FlutterFlowTheme.of(context)
-                                          .secondary,
-                                      fontSize: 22.0,
+                                          .primaryText,
+                                      fontSize: 28.0,
                                       letterSpacing: 0.0,
-                                      fontWeight: FontWeight.w800,
+                                      fontWeight: FontWeight.w900,
                                       fontStyle: FlutterFlowTheme.of(context)
                                           .headlineMedium
                                           .fontStyle,
                                     ),
                               ),
                               TextSpan(
-                                text: 'olf ',
+                                text: ' ',
                                 style: TextStyle(),
                               ),
                               TextSpan(
-                                text: 'C',
-                                style: TextStyle(
-                                  color: FlutterFlowTheme.of(context).tertiary,
-                                  fontWeight: FontWeight.w800,
+                                text: '10',
+                                style: GoogleFonts.plusJakartaSans(
+                                  color: Color(0xFFD2C50C),
+                                  fontWeight: FontWeight.w900,
+                                  fontSize: 28.0,
                                 ),
-                              ),
-                              TextSpan(
-                                text: 'lub ',
-                                style: TextStyle(),
-                              ),
-                              TextSpan(
-                                text: 'a',
-                                style: TextStyle(
-                                  color: FlutterFlowTheme.of(context).primary,
-                                  fontWeight: FontWeight.w800,
-                                ),
-                              ),
-                              TextSpan(
-                                text: 'dvisor',
-                                style: TextStyle(),
                               )
                             ],
                             style: FlutterFlowTheme.of(context)
                                 .headlineMedium
                                 .override(
-                                  font: GoogleFonts.plusJakartaSans(
+                                  font: GoogleFonts.playfairDisplay(
                                     fontWeight: FontWeight.bold,
                                     fontStyle: FlutterFlowTheme.of(context)
                                         .headlineMedium
@@ -168,25 +156,47 @@ class _TopTenWidgetState extends State<TopTenWidget> {
                                 ),
                           ),
                         ),
-                        Text(
-                          'REAL GOLFERS. REAL REVIEWS.',
-                          style: FlutterFlowTheme.of(context)
-                              .headlineMedium
-                              .override(
-                                font: GoogleFonts.plusJakartaSans(
-                                  fontWeight: FontWeight.bold,
-                                  fontStyle: FlutterFlowTheme.of(context)
-                                      .headlineMedium
-                                      .fontStyle,
-                                ),
-                                color: FlutterFlowTheme.of(context).primary,
-                                fontSize: 12.0,
-                                letterSpacing: 0.0,
-                                fontWeight: FontWeight.bold,
-                                fontStyle: FlutterFlowTheme.of(context)
-                                    .headlineMedium
-                                    .fontStyle,
+                        Row(
+                          mainAxisSize: MainAxisSize.max,
+                          mainAxisAlignment:
+                              (FFMainAxisAlignment.center).flutterValue,
+                          children: [
+                            Container(
+                              width: 50.0,
+                              height: 2.0,
+                              decoration: BoxDecoration(
+                                color: FlutterFlowTheme.of(context).primaryText,
                               ),
+                            ),
+                            Text(
+                              'GOLF CLUBS',
+                              style: FlutterFlowTheme.of(context)
+                                  .headlineMedium
+                                  .override(
+                                    font: GoogleFonts.plusJakartaSans(
+                                      fontWeight: FontWeight.w900,
+                                      fontStyle: FlutterFlowTheme.of(context)
+                                          .headlineMedium
+                                          .fontStyle,
+                                    ),
+                                    color: FlutterFlowTheme.of(context)
+                                        .primaryText,
+                                    fontSize: 18.0,
+                                    letterSpacing: 0.0,
+                                    fontWeight: FontWeight.w900,
+                                    fontStyle: FlutterFlowTheme.of(context)
+                                        .headlineMedium
+                                        .fontStyle,
+                                  ),
+                            ),
+                            Container(
+                              width: 50.0,
+                              height: 2.0,
+                              decoration: BoxDecoration(
+                                color: FlutterFlowTheme.of(context).warning,
+                              ),
+                            ),
+                          ].divide(SizedBox(width: 8.0)),
                         ),
                       ].divide(SizedBox(height: 6.0)),
                     ),
@@ -199,9 +209,9 @@ class _TopTenWidgetState extends State<TopTenWidget> {
                     onTap: () async {
                       context.pushNamed(SupportWidget.routeName);
                     },
-                    child: Icon(
-                      Icons.support_agent,
-                      color: FlutterFlowTheme.of(context).primaryText,
+                    child: FaIcon(
+                      FaIconData(FontAwesomeIcons.solidFlag.data),
+                      color: Color(0xFFD2C50C),
                       size: 24.0,
                     ),
                   ),
@@ -225,40 +235,6 @@ class _TopTenWidgetState extends State<TopTenWidget> {
                       mainAxisAlignment: MainAxisAlignment.start,
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        Row(
-                          mainAxisSize: MainAxisSize.max,
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                          children: [
-                            Text(
-                              'Top Clubs',
-                              style: FlutterFlowTheme.of(context)
-                                  .bodyMedium
-                                  .override(
-                                    font: GoogleFonts.plusJakartaSans(
-                                      fontWeight: FontWeight.bold,
-                                      fontStyle: FlutterFlowTheme.of(context)
-                                          .bodyMedium
-                                          .fontStyle,
-                                    ),
-                                    fontSize: 24.0,
-                                    letterSpacing: 1.5,
-                                    fontWeight: FontWeight.bold,
-                                    fontStyle: FlutterFlowTheme.of(context)
-                                        .bodyMedium
-                                        .fontStyle,
-                                  ),
-                            ),
-                            ClipRRect(
-                              borderRadius: BorderRadius.circular(8.0),
-                              child: Image.asset(
-                                'assets/images/WhatsApp_Image_2026-09-07_at_3.03.02_AM.jpeg',
-                                width: 100.0,
-                                height: 70.0,
-                                fit: BoxFit.cover,
-                              ),
-                            ),
-                          ],
-                        ),
                         Expanded(
                           child: Container(
                             decoration: BoxDecoration(),
@@ -308,20 +284,26 @@ class _TopTenWidgetState extends State<TopTenWidget> {
                                     final listViewGolfClubsRow =
                                         listViewGolfClubsRowList[listViewIndex];
                                     return wrapWithModel(
-                                      model: _model.clubCardWideModels.getModel(
+                                      model:
+                                          _model.clubCardTopTenModels.getModel(
                                         listViewGolfClubsRow.id.toString(),
                                         listViewIndex,
                                       ),
                                       updateCallback: () => safeSetState(() {}),
-                                      child: ClubCardWideWidget(
+                                      child: ClubCardTopTenWidget(
                                         key: Key(
-                                          'Keydja_${listViewGolfClubsRow.id.toString()}',
+                                          'Keyb0t_${listViewGolfClubsRow.id.toString()}',
                                         ),
                                         img: listViewGolfClubsRow.imageUrl,
                                         loc: listViewGolfClubsRow.address,
                                         name: listViewGolfClubsRow.name,
                                         price: listViewGolfClubsRow.greenFee,
-                                        rating: '4.9',
+                                        rating: valueOrDefault<String>(
+                                          listViewGolfClubsRow.overallRating
+                                              ?.toString(),
+                                          '0.0',
+                                        ),
+                                        index: listViewIndex,
                                         clubDetails: listViewGolfClubsRow,
                                       ),
                                     );
@@ -329,6 +311,91 @@ class _TopTenWidgetState extends State<TopTenWidget> {
                                 );
                               },
                             ),
+                          ),
+                        ),
+                        Padding(
+                          padding: EdgeInsetsDirectional.fromSTEB(
+                              0.0, 12.0, 0.0, 12.0),
+                          child: Row(
+                            mainAxisSize: MainAxisSize.max,
+                            mainAxisAlignment:
+                                (FFMainAxisAlignment.center).flutterValue,
+                            children: [
+                              Container(
+                                width: 50.0,
+                                height: 3.0,
+                                decoration: BoxDecoration(
+                                  color:
+                                      FlutterFlowTheme.of(context).primaryText,
+                                ),
+                              ),
+                              Icon(
+                                Icons.star,
+                                color: FlutterFlowTheme.of(context).primaryText,
+                                size: 18.0,
+                              ),
+                              Align(
+                                alignment: AlignmentDirectional(0.0, -1.0),
+                                child: Text(
+                                  'REAL REVIEWS',
+                                  textAlign: TextAlign.center,
+                                  style: FlutterFlowTheme.of(context)
+                                      .bodyMedium
+                                      .override(
+                                        font: GoogleFonts.inter(
+                                          fontWeight: FontWeight.bold,
+                                          fontStyle:
+                                              FlutterFlowTheme.of(context)
+                                                  .bodyMedium
+                                                  .fontStyle,
+                                        ),
+                                        fontSize: 12.0,
+                                        letterSpacing: 0.0,
+                                        fontWeight: FontWeight.bold,
+                                        fontStyle: FlutterFlowTheme.of(context)
+                                            .bodyMedium
+                                            .fontStyle,
+                                      ),
+                                ),
+                              ),
+                              Icon(
+                                Icons.star,
+                                color: FlutterFlowTheme.of(context).primaryText,
+                                size: 18.0,
+                              ),
+                              Align(
+                                alignment: AlignmentDirectional(0.0, -1.0),
+                                child: Text(
+                                  'BETTER CHOICES',
+                                  textAlign: TextAlign.center,
+                                  style: FlutterFlowTheme.of(context)
+                                      .bodyMedium
+                                      .override(
+                                        font: GoogleFonts.inter(
+                                          fontWeight: FontWeight.bold,
+                                          fontStyle:
+                                              FlutterFlowTheme.of(context)
+                                                  .bodyMedium
+                                                  .fontStyle,
+                                        ),
+                                        fontSize: 12.0,
+                                        letterSpacing: 0.0,
+                                        fontWeight: FontWeight.bold,
+                                        fontStyle: FlutterFlowTheme.of(context)
+                                            .bodyMedium
+                                            .fontStyle,
+                                      ),
+                                ),
+                              ),
+                              Container(
+                                width: 50.0,
+                                height: 3.0,
+                                decoration: BoxDecoration(
+                                  color:
+                                      FlutterFlowTheme.of(context).primaryText,
+                                ),
+                              ),
+                            ].divide(SizedBox(width: 4.0)),
                           ),
                         ),
                       ].divide(SizedBox(height: 16.0)),
