@@ -99,167 +99,87 @@ class _ClubMapCardWidgetState extends State<ClubMapCardWidget> {
                 ),
                 Expanded(
                   flex: 1,
-                  child: Row(
-                    mainAxisSize: MainAxisSize.max,
-                    children: [
-                      Container(
-                        width: 62.0,
-                        height: 62.0,
-                        clipBehavior: Clip.antiAlias,
-                        decoration: BoxDecoration(
-                          shape: BoxShape.circle,
-                        ),
-                        child: Image.asset(
-                          'assets/images/logo_gca.JPG',
-                          fit: BoxFit.cover,
-                        ),
-                      ),
-                      Column(
-                        mainAxisSize: MainAxisSize.max,
-                        mainAxisAlignment:
-                            (FFMainAxisAlignment.spaceAround).flutterValue,
-                        crossAxisAlignment:
-                            (FFCrossAxisAlignment.start).flutterValue,
-                        textBaseline: TextBaseline.alphabetic,
-                        children: [
-                          Text(
-                            valueOrDefault<String>(
-                              widget.clubDetails?.name,
-                              'club name',
-                            ),
-                            style: FlutterFlowTheme.of(context)
-                                .bodyMedium
-                                .override(
-                                  font: GoogleFonts.inter(
-                                    fontWeight: FontWeight.w800,
-                                    fontStyle: FlutterFlowTheme.of(context)
-                                        .bodyMedium
-                                        .fontStyle,
-                                  ),
-                                  fontSize: 16.0,
-                                  letterSpacing: 0.0,
-                                  fontWeight: FontWeight.w800,
-                                  fontStyle: FlutterFlowTheme.of(context)
-                                      .bodyMedium
-                                      .fontStyle,
-                                ),
-                            overflow: TextOverflow.ellipsis,
+                  child: Padding(
+                    padding:
+                        EdgeInsetsDirectional.fromSTEB(0.0, 0.0, 12.0, 0.0),
+                    child: Row(
+                      mainAxisSize: MainAxisSize.max,
+                      children: [
+                        Container(
+                          width: 62.0,
+                          height: 62.0,
+                          clipBehavior: Clip.antiAlias,
+                          decoration: BoxDecoration(
+                            shape: BoxShape.circle,
                           ),
-                          Row(
+                          child: Image.asset(
+                            'assets/images/logo_gca.JPG',
+                            fit: BoxFit.cover,
+                          ),
+                        ),
+                        Expanded(
+                          child: Column(
                             mainAxisSize: MainAxisSize.max,
+                            mainAxisAlignment:
+                                (FFMainAxisAlignment.spaceAround).flutterValue,
+                            crossAxisAlignment:
+                                (FFCrossAxisAlignment.start).flutterValue,
+                            textBaseline: TextBaseline.alphabetic,
                             children: [
-                              Icon(
-                                Icons.location_pin,
-                                color:
-                                    FlutterFlowTheme.of(context).secondaryText,
-                                size: 18.0,
-                              ),
-                              Expanded(
-                                child: Text(
-                                  valueOrDefault<String>(
-                                    widget.clubDetails?.address,
-                                    'address',
-                                  ),
-                                  textAlign: TextAlign.start,
-                                  maxLines: 2,
-                                  style: FlutterFlowTheme.of(context)
-                                      .bodyMedium
-                                      .override(
-                                        font: GoogleFonts.inter(
-                                          fontWeight:
-                                              FlutterFlowTheme.of(context)
-                                                  .bodyMedium
-                                                  .fontWeight,
-                                          fontStyle:
-                                              FlutterFlowTheme.of(context)
-                                                  .bodyMedium
-                                                  .fontStyle,
-                                        ),
-                                        letterSpacing: 0.0,
-                                        fontWeight: FlutterFlowTheme.of(context)
-                                            .bodyMedium
-                                            .fontWeight,
+                              Text(
+                                valueOrDefault<String>(
+                                  widget.clubDetails?.name,
+                                  'club name',
+                                ),
+                                style: FlutterFlowTheme.of(context)
+                                    .bodyMedium
+                                    .override(
+                                      font: GoogleFonts.inter(
+                                        fontWeight: FontWeight.w800,
                                         fontStyle: FlutterFlowTheme.of(context)
                                             .bodyMedium
                                             .fontStyle,
                                       ),
-                                  overflow: TextOverflow.ellipsis,
-                                ),
+                                      fontSize: 16.0,
+                                      letterSpacing: 0.0,
+                                      fontWeight: FontWeight.w800,
+                                      fontStyle: FlutterFlowTheme.of(context)
+                                          .bodyMedium
+                                          .fontStyle,
+                                    ),
+                                overflow: TextOverflow.ellipsis,
                               ),
-                            ].divide(SizedBox(width: 8.0)),
-                          ),
-                          Row(
-                            mainAxisSize: MainAxisSize.max,
-                            children: [
-                              RatingBarIndicator(
-                                itemBuilder: (context, index) => Icon(
-                                  Icons.star_rounded,
-                                  color: FlutterFlowTheme.of(context).primary,
-                                ),
-                                direction: Axis.horizontal,
-                                rating: 1.0,
-                                unratedColor:
-                                    FlutterFlowTheme.of(context).accent1,
-                                itemCount: 1,
-                                itemSize: 24.0,
-                              ),
-                              Padding(
-                                padding: EdgeInsetsDirectional.fromSTEB(
-                                    0.0, 0.0, 8.0, 0.0),
-                                child: Text(
-                                  '0.0',
-                                  style: FlutterFlowTheme.of(context)
-                                      .bodyMedium
-                                      .override(
-                                        font: GoogleFonts.inter(
-                                          fontWeight: FontWeight.bold,
-                                          fontStyle:
-                                              FlutterFlowTheme.of(context)
-                                                  .bodyMedium
-                                                  .fontStyle,
-                                        ),
-                                        fontSize: 16.0,
-                                        letterSpacing: 0.0,
-                                        fontWeight: FontWeight.bold,
-                                        fontStyle: FlutterFlowTheme.of(context)
-                                            .bodyMedium
-                                            .fontStyle,
-                                      ),
-                                ),
-                              ),
-                              FutureBuilder<List<ClubReviewsRow>>(
-                                future: ClubReviewsTable().queryRows(
-                                  queryFn: (q) => q.eqOrNull(
-                                    'club_id',
-                                    widget.clubDetails?.id,
+                              Row(
+                                mainAxisSize: MainAxisSize.max,
+                                children: [
+                                  Icon(
+                                    Icons.location_pin,
+                                    color: FlutterFlowTheme.of(context)
+                                        .secondaryText,
+                                    size: 18.0,
                                   ),
-                                ),
-                                builder: (context, snapshot) {
-                                  // Customize what your widget looks like when it's loading.
-                                  if (!snapshot.hasData) {
-                                    return Center(
-                                      child: SizedBox(
-                                        width: 50.0,
-                                        height: 50.0,
-                                        child: CircularProgressIndicator(
-                                          valueColor:
-                                              AlwaysStoppedAnimation<Color>(
-                                            FlutterFlowTheme.of(context)
-                                                .primary,
-                                          ),
-                                        ),
+                                  Expanded(
+                                    child: Text(
+                                      valueOrDefault<String>(
+                                        widget.clubDetails?.address,
+                                        'address',
                                       ),
-                                    );
-                                  }
-                                  List<ClubReviewsRow> textClubReviewsRowList =
-                                      snapshot.data!;
-
-                                  return Text(
-                                    '${textClubReviewsRowList.length.toString()} golfer reviews',
-                                    style: FlutterFlowTheme.of(context)
-                                        .bodyMedium
-                                        .override(
-                                          font: GoogleFonts.inter(
+                                      textAlign: TextAlign.start,
+                                      maxLines: 2,
+                                      style: FlutterFlowTheme.of(context)
+                                          .bodyMedium
+                                          .override(
+                                            font: GoogleFonts.inter(
+                                              fontWeight:
+                                                  FlutterFlowTheme.of(context)
+                                                      .bodyMedium
+                                                      .fontWeight,
+                                              fontStyle:
+                                                  FlutterFlowTheme.of(context)
+                                                      .bodyMedium
+                                                      .fontStyle,
+                                            ),
+                                            letterSpacing: 0.0,
                                             fontWeight:
                                                 FlutterFlowTheme.of(context)
                                                     .bodyMedium
@@ -269,27 +189,118 @@ class _ClubMapCardWidgetState extends State<ClubMapCardWidget> {
                                                     .bodyMedium
                                                     .fontStyle,
                                           ),
-                                          letterSpacing: 0.0,
-                                          fontWeight:
-                                              FlutterFlowTheme.of(context)
-                                                  .bodyMedium
-                                                  .fontWeight,
-                                          fontStyle:
-                                              FlutterFlowTheme.of(context)
-                                                  .bodyMedium
-                                                  .fontStyle,
-                                        ),
-                                  );
-                                },
+                                      overflow: TextOverflow.ellipsis,
+                                    ),
+                                  ),
+                                ].divide(SizedBox(width: 8.0)),
                               ),
-                            ].divide(SizedBox(width: 8.0)),
+                              Row(
+                                mainAxisSize: MainAxisSize.max,
+                                children: [
+                                  RatingBarIndicator(
+                                    itemBuilder: (context, index) => Icon(
+                                      Icons.star_rounded,
+                                      color:
+                                          FlutterFlowTheme.of(context).primary,
+                                    ),
+                                    direction: Axis.horizontal,
+                                    rating: 1.0,
+                                    unratedColor:
+                                        FlutterFlowTheme.of(context).accent1,
+                                    itemCount: 1,
+                                    itemSize: 24.0,
+                                  ),
+                                  Padding(
+                                    padding: EdgeInsetsDirectional.fromSTEB(
+                                        0.0, 0.0, 8.0, 0.0),
+                                    child: Text(
+                                      '0.0',
+                                      style: FlutterFlowTheme.of(context)
+                                          .bodyMedium
+                                          .override(
+                                            font: GoogleFonts.inter(
+                                              fontWeight: FontWeight.bold,
+                                              fontStyle:
+                                                  FlutterFlowTheme.of(context)
+                                                      .bodyMedium
+                                                      .fontStyle,
+                                            ),
+                                            fontSize: 16.0,
+                                            letterSpacing: 0.0,
+                                            fontWeight: FontWeight.bold,
+                                            fontStyle:
+                                                FlutterFlowTheme.of(context)
+                                                    .bodyMedium
+                                                    .fontStyle,
+                                          ),
+                                    ),
+                                  ),
+                                  FutureBuilder<List<ClubReviewsRow>>(
+                                    future: ClubReviewsTable().queryRows(
+                                      queryFn: (q) => q.eqOrNull(
+                                        'club_id',
+                                        widget.clubDetails?.id,
+                                      ),
+                                    ),
+                                    builder: (context, snapshot) {
+                                      // Customize what your widget looks like when it's loading.
+                                      if (!snapshot.hasData) {
+                                        return Center(
+                                          child: SizedBox(
+                                            width: 50.0,
+                                            height: 50.0,
+                                            child: CircularProgressIndicator(
+                                              valueColor:
+                                                  AlwaysStoppedAnimation<Color>(
+                                                FlutterFlowTheme.of(context)
+                                                    .primary,
+                                              ),
+                                            ),
+                                          ),
+                                        );
+                                      }
+                                      List<ClubReviewsRow>
+                                          textClubReviewsRowList =
+                                          snapshot.data!;
+
+                                      return Text(
+                                        '${textClubReviewsRowList.length.toString()} golfer reviews',
+                                        style: FlutterFlowTheme.of(context)
+                                            .bodyMedium
+                                            .override(
+                                              font: GoogleFonts.inter(
+                                                fontWeight:
+                                                    FlutterFlowTheme.of(context)
+                                                        .bodyMedium
+                                                        .fontWeight,
+                                                fontStyle:
+                                                    FlutterFlowTheme.of(context)
+                                                        .bodyMedium
+                                                        .fontStyle,
+                                              ),
+                                              letterSpacing: 0.0,
+                                              fontWeight:
+                                                  FlutterFlowTheme.of(context)
+                                                      .bodyMedium
+                                                      .fontWeight,
+                                              fontStyle:
+                                                  FlutterFlowTheme.of(context)
+                                                      .bodyMedium
+                                                      .fontStyle,
+                                            ),
+                                      );
+                                    },
+                                  ),
+                                ].divide(SizedBox(width: 8.0)),
+                              ),
+                            ],
                           ),
-                        ],
-                      ),
-                    ].divide(SizedBox(width: 16.0)),
+                        ),
+                      ].divide(SizedBox(width: 16.0)),
+                    ),
                   ),
                 ),
-              ],
+              ].divide(SizedBox(height: 6.0)),
             ),
           ),
         ),

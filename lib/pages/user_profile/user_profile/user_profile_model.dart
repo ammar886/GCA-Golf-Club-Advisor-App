@@ -1,9 +1,6 @@
 import '/auth/supabase_auth/auth_util.dart';
 import '/backend/supabase/supabase.dart';
-import '/components/club_search_d_d_widget.dart';
-import '/flutter_flow/flutter_flow_drop_down.dart';
-import '/flutter_flow/flutter_flow_icon_button.dart';
-import '/flutter_flow/flutter_flow_theme.dart';
+import '/components/loader_widget.dart';
 import '/flutter_flow/flutter_flow_util.dart';
 import '/pages/user_profile/golfer_card/golfer_card_widget.dart';
 import 'dart:ui';
@@ -26,20 +23,26 @@ class UserProfileModel extends FlutterFlowModel<UserProfileWidget> {
 
   bool homeClubVal = true;
 
+  bool isLoading = true;
+
   ///  State fields for stateful widgets in this page.
 
   // Stores action output result for [Backend Call - Query Rows] action in UserProfile widget.
   List<UsersRow>? userDetails;
   // Model for golferCard component.
   late GolferCardModel golferCardModel;
+  // Model for loader component.
+  late LoaderModel loaderModel;
 
   @override
   void initState(BuildContext context) {
     golferCardModel = createModel(context, () => GolferCardModel());
+    loaderModel = createModel(context, () => LoaderModel());
   }
 
   @override
   void dispose() {
     golferCardModel.dispose();
+    loaderModel.dispose();
   }
 }
