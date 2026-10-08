@@ -72,153 +72,172 @@ class _TopTenWidgetState extends State<TopTenWidget> {
           key: scaffoldKey,
           backgroundColor: FlutterFlowTheme.of(context).primaryBackground,
           appBar: PreferredSize(
-            preferredSize: Size.fromHeight(70.0),
+            preferredSize: Size.fromHeight(80.0),
             child: AppBar(
               backgroundColor: FlutterFlowTheme.of(context).secondaryBackground,
               automaticallyImplyLeading: false,
-              title: Row(
-                mainAxisSize: MainAxisSize.max,
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  Container(
-                    width: 50.0,
-                    height: 50.0,
-                    clipBehavior: Clip.antiAlias,
-                    decoration: BoxDecoration(
-                      shape: BoxShape.circle,
+              actions: [],
+              flexibleSpace: FlexibleSpaceBar(
+                title: Row(
+                  mainAxisSize: MainAxisSize.max,
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Container(
+                      width: 50.0,
+                      height: 50.0,
+                      clipBehavior: Clip.antiAlias,
+                      decoration: BoxDecoration(
+                        shape: BoxShape.circle,
+                      ),
+                      child: Image.asset(
+                        'assets/images/logo.JPG',
+                        fit: BoxFit.cover,
+                      ),
                     ),
-                    child: Image.asset(
-                      'assets/images/copilot_image_1786136711562.png',
-                      fit: BoxFit.cover,
-                    ),
-                  ),
-                  Expanded(
-                    child: Column(
-                      mainAxisSize: MainAxisSize.max,
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      crossAxisAlignment: CrossAxisAlignment.center,
-                      children: [
-                        RichText(
-                          textScaler: MediaQuery.of(context).textScaler,
-                          text: TextSpan(
+                    Expanded(
+                      child: Stack(
+                        alignment: AlignmentDirectional(1.0, -1.0),
+                        children: [
+                          Column(
+                            mainAxisSize: MainAxisSize.max,
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            crossAxisAlignment: CrossAxisAlignment.center,
                             children: [
-                              TextSpan(
-                                text: 'TOP',
-                                style: FlutterFlowTheme.of(context)
-                                    .headlineMedium
-                                    .override(
-                                      font: GoogleFonts.plusJakartaSans(
+                              RichText(
+                                textScaler: MediaQuery.of(context).textScaler,
+                                text: TextSpan(
+                                  children: [
+                                    TextSpan(
+                                      text: 'TOP',
+                                      style: FlutterFlowTheme.of(context)
+                                          .headlineMedium
+                                          .override(
+                                            font: GoogleFonts.plusJakartaSans(
+                                              fontWeight: FontWeight.w900,
+                                              fontStyle:
+                                                  FlutterFlowTheme.of(context)
+                                                      .headlineMedium
+                                                      .fontStyle,
+                                            ),
+                                            color: FlutterFlowTheme.of(context)
+                                                .primaryText,
+                                            fontSize: 36.0,
+                                            letterSpacing: 0.0,
+                                            fontWeight: FontWeight.w900,
+                                            fontStyle:
+                                                FlutterFlowTheme.of(context)
+                                                    .headlineMedium
+                                                    .fontStyle,
+                                          ),
+                                    ),
+                                    TextSpan(
+                                      text: ' ',
+                                      style: TextStyle(
+                                        fontSize: 32.0,
+                                      ),
+                                    ),
+                                    TextSpan(
+                                      text: '10',
+                                      style: GoogleFonts.plusJakartaSans(
+                                        color: Color(0xFFD2C50C),
                                         fontWeight: FontWeight.w900,
+                                        fontSize: 36.0,
+                                      ),
+                                    )
+                                  ],
+                                  style: FlutterFlowTheme.of(context)
+                                      .headlineMedium
+                                      .override(
+                                        font: GoogleFonts.playfairDisplay(
+                                          fontWeight: FontWeight.bold,
+                                          fontStyle:
+                                              FlutterFlowTheme.of(context)
+                                                  .headlineMedium
+                                                  .fontStyle,
+                                        ),
+                                        color: FlutterFlowTheme.of(context)
+                                            .primaryText,
+                                        fontSize: 28.0,
+                                        letterSpacing: 0.0,
+                                        fontWeight: FontWeight.bold,
                                         fontStyle: FlutterFlowTheme.of(context)
                                             .headlineMedium
                                             .fontStyle,
                                       ),
+                                ),
+                              ),
+                              Row(
+                                mainAxisSize: MainAxisSize.max,
+                                mainAxisAlignment:
+                                    (FFMainAxisAlignment.center).flutterValue,
+                                children: [
+                                  Container(
+                                    width: 50.0,
+                                    height: 2.0,
+                                    decoration: BoxDecoration(
                                       color: FlutterFlowTheme.of(context)
                                           .primaryText,
-                                      fontSize: 28.0,
-                                      letterSpacing: 0.0,
-                                      fontWeight: FontWeight.w900,
-                                      fontStyle: FlutterFlowTheme.of(context)
-                                          .headlineMedium
-                                          .fontStyle,
                                     ),
-                              ),
-                              TextSpan(
-                                text: ' ',
-                                style: TextStyle(),
-                              ),
-                              TextSpan(
-                                text: '10',
-                                style: GoogleFonts.plusJakartaSans(
-                                  color: Color(0xFFD2C50C),
-                                  fontWeight: FontWeight.w900,
-                                  fontSize: 28.0,
-                                ),
-                              )
-                            ],
-                            style: FlutterFlowTheme.of(context)
-                                .headlineMedium
-                                .override(
-                                  font: GoogleFonts.playfairDisplay(
-                                    fontWeight: FontWeight.bold,
-                                    fontStyle: FlutterFlowTheme.of(context)
-                                        .headlineMedium
-                                        .fontStyle,
                                   ),
-                                  color:
-                                      FlutterFlowTheme.of(context).primaryText,
-                                  fontSize: 22.0,
-                                  letterSpacing: 0.0,
-                                  fontWeight: FontWeight.bold,
-                                  fontStyle: FlutterFlowTheme.of(context)
-                                      .headlineMedium
-                                      .fontStyle,
-                                ),
+                                  Text(
+                                    'GOLF CLUBS',
+                                    style: FlutterFlowTheme.of(context)
+                                        .headlineMedium
+                                        .override(
+                                          font: GoogleFonts.plusJakartaSans(
+                                            fontWeight: FontWeight.w900,
+                                            fontStyle:
+                                                FlutterFlowTheme.of(context)
+                                                    .headlineMedium
+                                                    .fontStyle,
+                                          ),
+                                          color: FlutterFlowTheme.of(context)
+                                              .primaryText,
+                                          fontSize: 20.0,
+                                          letterSpacing: 0.0,
+                                          fontWeight: FontWeight.w900,
+                                          fontStyle:
+                                              FlutterFlowTheme.of(context)
+                                                  .headlineMedium
+                                                  .fontStyle,
+                                        ),
+                                  ),
+                                  Container(
+                                    width: 50.0,
+                                    height: 2.0,
+                                    decoration: BoxDecoration(
+                                      color:
+                                          FlutterFlowTheme.of(context).warning,
+                                    ),
+                                  ),
+                                ].divide(SizedBox(width: 8.0)),
+                              ),
+                            ].divide(SizedBox(height: 6.0)),
                           ),
-                        ),
-                        Row(
-                          mainAxisSize: MainAxisSize.max,
-                          mainAxisAlignment:
-                              (FFMainAxisAlignment.center).flutterValue,
-                          children: [
-                            Container(
-                              width: 50.0,
-                              height: 2.0,
-                              decoration: BoxDecoration(
-                                color: FlutterFlowTheme.of(context).primaryText,
-                              ),
+                          InkWell(
+                            splashColor: Colors.transparent,
+                            focusColor: Colors.transparent,
+                            hoverColor: Colors.transparent,
+                            highlightColor: Colors.transparent,
+                            onTap: () async {
+                              context.pushNamed(SupportWidget.routeName);
+                            },
+                            child: FaIcon(
+                              FaIconData(FontAwesomeIcons.solidFlag.data),
+                              color: Color(0xFFD2C50C),
+                              size: 24.0,
                             ),
-                            Text(
-                              'GOLF CLUBS',
-                              style: FlutterFlowTheme.of(context)
-                                  .headlineMedium
-                                  .override(
-                                    font: GoogleFonts.plusJakartaSans(
-                                      fontWeight: FontWeight.w900,
-                                      fontStyle: FlutterFlowTheme.of(context)
-                                          .headlineMedium
-                                          .fontStyle,
-                                    ),
-                                    color: FlutterFlowTheme.of(context)
-                                        .primaryText,
-                                    fontSize: 18.0,
-                                    letterSpacing: 0.0,
-                                    fontWeight: FontWeight.w900,
-                                    fontStyle: FlutterFlowTheme.of(context)
-                                        .headlineMedium
-                                        .fontStyle,
-                                  ),
-                            ),
-                            Container(
-                              width: 50.0,
-                              height: 2.0,
-                              decoration: BoxDecoration(
-                                color: FlutterFlowTheme.of(context).warning,
-                              ),
-                            ),
-                          ].divide(SizedBox(width: 8.0)),
-                        ),
-                      ].divide(SizedBox(height: 6.0)),
+                          ),
+                        ],
+                      ),
                     ),
-                  ),
-                  InkWell(
-                    splashColor: Colors.transparent,
-                    focusColor: Colors.transparent,
-                    hoverColor: Colors.transparent,
-                    highlightColor: Colors.transparent,
-                    onTap: () async {
-                      context.pushNamed(SupportWidget.routeName);
-                    },
-                    child: FaIcon(
-                      FaIconData(FontAwesomeIcons.solidFlag.data),
-                      color: Color(0xFFD2C50C),
-                      size: 24.0,
-                    ),
-                  ),
-                ].divide(SizedBox(width: 8.0)),
+                  ].divide(SizedBox(width: 8.0)),
+                ),
+                centerTitle: true,
+                expandedTitleScale: 1.0,
+                titlePadding:
+                    EdgeInsetsDirectional.fromSTEB(48.0, 32.0, 16.0, 0.0),
               ),
-              actions: [],
-              centerTitle: true,
               elevation: 2.0,
             ),
           ),
@@ -279,7 +298,7 @@ class _TopTenWidgetState extends State<TopTenWidget> {
                                   scrollDirection: Axis.vertical,
                                   itemCount: listViewGolfClubsRowList.length,
                                   separatorBuilder: (_, __) =>
-                                      SizedBox(height: 16.0),
+                                      SizedBox(height: 8.0),
                                   itemBuilder: (context, listViewIndex) {
                                     final listViewGolfClubsRow =
                                         listViewGolfClubsRowList[listViewIndex];

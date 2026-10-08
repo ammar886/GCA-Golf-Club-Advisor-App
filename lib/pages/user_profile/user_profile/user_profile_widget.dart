@@ -92,66 +92,51 @@ class _UserProfileWidgetState extends State<UserProfileWidget> {
                   ),
                 ),
                 Expanded(
-                  child: Column(
-                    mainAxisSize: MainAxisSize.max,
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    crossAxisAlignment: CrossAxisAlignment.center,
-                    children: [
-                      RichText(
-                        textScaler: MediaQuery.of(context).textScaler,
-                        text: TextSpan(
-                          children: [
-                            TextSpan(
-                              text: 'G',
-                              style: FlutterFlowTheme.of(context)
-                                  .headlineMedium
-                                  .override(
-                                    font: GoogleFonts.plusJakartaSans(
-                                      fontWeight: FontWeight.w800,
-                                      fontStyle: FlutterFlowTheme.of(context)
-                                          .headlineMedium
-                                          .fontStyle,
-                                    ),
-                                    color:
-                                        FlutterFlowTheme.of(context).secondary,
-                                    fontSize: 22.0,
-                                    letterSpacing: 0.0,
-                                    fontWeight: FontWeight.w800,
-                                    fontStyle: FlutterFlowTheme.of(context)
-                                        .headlineMedium
-                                        .fontStyle,
-                                  ),
-                            ),
-                            TextSpan(
-                              text: 'olf ',
-                              style: TextStyle(),
-                            ),
-                            TextSpan(
-                              text: 'C',
-                              style: TextStyle(
-                                color: FlutterFlowTheme.of(context).tertiary,
-                                fontWeight: FontWeight.w800,
-                              ),
-                            ),
-                            TextSpan(
-                              text: 'lub ',
-                              style: TextStyle(),
-                            ),
-                            TextSpan(
-                              text: 'a',
-                              style: TextStyle(
-                                color: FlutterFlowTheme.of(context).primary,
-                                fontWeight: FontWeight.w800,
-                              ),
-                            ),
-                            TextSpan(
-                              text: 'dvisor',
-                              style: TextStyle(),
-                            )
-                          ],
+                  child: RichText(
+                    textScaler: MediaQuery.of(context).textScaler,
+                    text: TextSpan(
+                      children: [
+                        TextSpan(
+                          text: 'G',
                           style: FlutterFlowTheme.of(context)
                               .headlineMedium
                               .override(
+                                font: GoogleFonts.plusJakartaSans(
+                                  fontWeight: FontWeight.w800,
+                                  fontStyle: FlutterFlowTheme.of(context)
+                                      .headlineMedium
+                                      .fontStyle,
+                                ),
+                                color: FlutterFlowTheme.of(context).secondary,
+                                fontSize: 22.0,
+                                letterSpacing: 0.0,
+                                fontWeight: FontWeight.w800,
+                                fontStyle: FlutterFlowTheme.of(context)
+                                    .headlineMedium
+                                    .fontStyle,
+                              ),
+                        ),
+                        TextSpan(
+                          text: 'C',
+                          style: TextStyle(
+                            color: FlutterFlowTheme.of(context).tertiary,
+                            fontWeight: FontWeight.w800,
+                          ),
+                        ),
+                        TextSpan(
+                          text: 'a',
+                          style: TextStyle(
+                            color: FlutterFlowTheme.of(context).primary,
+                            fontWeight: FontWeight.w800,
+                          ),
+                        ),
+                        TextSpan(
+                          text: ' Profile',
+                          style: TextStyle(),
+                        )
+                      ],
+                      style:
+                          FlutterFlowTheme.of(context).headlineMedium.override(
                                 font: GoogleFonts.plusJakartaSans(
                                   fontWeight: FontWeight.bold,
                                   fontStyle: FlutterFlowTheme.of(context)
@@ -166,29 +151,8 @@ class _UserProfileWidgetState extends State<UserProfileWidget> {
                                     .headlineMedium
                                     .fontStyle,
                               ),
-                        ),
-                      ),
-                      Text(
-                        'REAL GOLFERS. REAL REVIEWS.',
-                        style: FlutterFlowTheme.of(context)
-                            .headlineMedium
-                            .override(
-                              font: GoogleFonts.plusJakartaSans(
-                                fontWeight: FontWeight.bold,
-                                fontStyle: FlutterFlowTheme.of(context)
-                                    .headlineMedium
-                                    .fontStyle,
-                              ),
-                              color: FlutterFlowTheme.of(context).primary,
-                              fontSize: 12.0,
-                              letterSpacing: 0.0,
-                              fontWeight: FontWeight.bold,
-                              fontStyle: FlutterFlowTheme.of(context)
-                                  .headlineMedium
-                                  .fontStyle,
-                            ),
-                      ),
-                    ].divide(SizedBox(height: 6.0)),
+                    ),
+                    textAlign: TextAlign.center,
                   ),
                 ),
                 Row(

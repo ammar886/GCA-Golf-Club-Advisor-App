@@ -133,7 +133,7 @@ class _ClubCardTopTenWidgetState extends State<ClubCardTopTenWidget> {
                 ),
               ),
               child: Padding(
-                padding: EdgeInsetsDirectional.fromSTEB(12.0, 6.0, 12.0, 6.0),
+                padding: EdgeInsetsDirectional.fromSTEB(6.0, 6.0, 6.0, 6.0),
                 child: Row(
                   mainAxisSize: MainAxisSize.max,
                   mainAxisAlignment: MainAxisAlignment.start,
@@ -180,8 +180,8 @@ class _ClubCardTopTenWidgetState extends State<ClubCardTopTenWidget> {
                         ],
                       ),
                     Container(
-                      width: 90.0,
-                      height: 70.0,
+                      width: 80.0,
+                      height: 60.0,
                       child: ClipRRect(
                         borderRadius: BorderRadius.circular(12.0),
                         child: CachedNetworkImage(
@@ -199,7 +199,8 @@ class _ClubCardTopTenWidgetState extends State<ClubCardTopTenWidget> {
                     Expanded(
                       flex: 1,
                       child: Padding(
-                        padding: EdgeInsets.all(16.0),
+                        padding: EdgeInsetsDirectional.fromSTEB(
+                            16.0, 0.0, 16.0, 0.0),
                         child: Column(
                           mainAxisSize: MainAxisSize.min,
                           mainAxisAlignment: MainAxisAlignment.start,
@@ -336,7 +337,7 @@ class _ClubCardTopTenWidgetState extends State<ClubCardTopTenWidget> {
                                 ),
                               ].divide(SizedBox(width: 8.0)),
                             ),
-                          ].divide(SizedBox(height: 4.0)),
+                          ].divide(SizedBox(height: 2.0)),
                         ),
                       ),
                     ),
@@ -387,7 +388,7 @@ class _ClubCardTopTenWidgetState extends State<ClubCardTopTenWidget> {
                         ],
                       ),
                     ),
-                  ].divide(SizedBox(width: 8.0)),
+                  ],
                 ),
               ),
             ),

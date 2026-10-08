@@ -192,6 +192,90 @@ class UpdatePasswordCall {
       ));
 }
 
+class FetchGolfNewsCall {
+  static Future<ApiCallResponse> call({
+    String? key,
+  }) async {
+    key ??= FFDevEnvironmentValues().supabaseKey;
+
+    return ApiManager.instance.makeApiCall(
+      callName: 'fetchGolfNews',
+      apiUrl:
+          'https://pxzryjbzwioeuajlerze.supabase.co/functions/v1/fetch-rss-feed',
+      callType: ApiCallType.GET,
+      headers: {
+        'Authorization': 'Bearer ${key}',
+      },
+      params: {},
+      returnBody: true,
+      encodeBodyUtf8: false,
+      decodeUtf8: false,
+      cache: false,
+      isStreamingApi: false,
+      alwaysAllowBody: false,
+    );
+  }
+
+  static dynamic articles(dynamic response) => getJsonField(
+        response,
+        r'''$''',
+      );
+  static List<String>? articleId(dynamic response) => (getJsonField(
+        response,
+        r'''$.articles[:].id''',
+        true,
+      ) as List?)
+          ?.withoutNulls
+          .map((x) => castToType<String>(x))
+          .withoutNulls
+          .toList();
+  static List<String>? articleTitle(dynamic response) => (getJsonField(
+        response,
+        r'''$.articles[:].title''',
+        true,
+      ) as List?)
+          ?.withoutNulls
+          .map((x) => castToType<String>(x))
+          .withoutNulls
+          .toList();
+  static List<String>? articleDescription(dynamic response) => (getJsonField(
+        response,
+        r'''$.articles[:].description''',
+        true,
+      ) as List?)
+          ?.withoutNulls
+          .map((x) => castToType<String>(x))
+          .withoutNulls
+          .toList();
+  static List<String>? articleUrl(dynamic response) => (getJsonField(
+        response,
+        r'''$.articles[:].url''',
+        true,
+      ) as List?)
+          ?.withoutNulls
+          .map((x) => castToType<String>(x))
+          .withoutNulls
+          .toList();
+  static List<String>? articlePublishedAt(dynamic response) => (getJsonField(
+        response,
+        r'''$.articles[:].publishedAt''',
+        true,
+      ) as List?)
+          ?.withoutNulls
+          .map((x) => castToType<String>(x))
+          .withoutNulls
+          .toList();
+  static List<String>? articleImage(dynamic response) => (getJsonField(
+        response,
+        r'''$.articles[:].imageUrl''',
+        true,
+      ) as List?)
+          ?.withoutNulls
+          .map((x) => castToType<String>(x))
+          .withoutNulls
+          .toList();
+}
+
 class ApiPagingParams {
   int nextPageNumber = 0;
   int numItems = 0;
