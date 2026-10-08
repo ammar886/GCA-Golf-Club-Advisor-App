@@ -1,4 +1,4 @@
-package com.jeremy.golfclubadvisor
+package com.golfclubadvisor.app
 
 import io.flutter.embedding.android.FlutterActivity
 
