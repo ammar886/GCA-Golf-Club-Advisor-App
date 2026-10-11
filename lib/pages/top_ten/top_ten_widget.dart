@@ -223,7 +223,9 @@ class _TopTenWidgetState extends State<TopTenWidget> {
                               context.pushNamed(SupportWidget.routeName);
                             },
                             child: FaIcon(
-                              FaIconData(FontAwesomeIcons.solidFlag.data),
+                              FaIconData(const IconData(/* solidFlag */ 0xf024,
+                                  fontFamily: 'FontAwesomeSolid',
+                                  fontPackage: 'font_awesome_flutter')),
                               color: Color(0xFFD2C50C),
                               size: 24.0,
                             ),
@@ -248,7 +250,7 @@ class _TopTenWidgetState extends State<TopTenWidget> {
                 if (!_model.isLoading) {
                   return Padding(
                     padding:
-                        EdgeInsetsDirectional.fromSTEB(16.0, 24.0, 16.0, 24.0),
+                        EdgeInsetsDirectional.fromSTEB(12.0, 24.0, 12.0, 24.0),
                     child: Column(
                       mainAxisSize: MainAxisSize.max,
                       mainAxisAlignment: MainAxisAlignment.start,

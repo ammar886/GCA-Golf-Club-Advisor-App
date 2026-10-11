@@ -655,9 +655,12 @@ class _AdminHomeWidgetState extends State<AdminHomeWidget> {
                                                             );
                                                           },
                                                           child: FaIcon(
-                                                            FaIconData(
-                                                                FontAwesomeIcons
-                                                                    .eye.data),
+                                                            FaIconData(const IconData(
+                                                                /* eye */ 0xf06e,
+                                                                fontFamily:
+                                                                    'FontAwesomeRegular',
+                                                                fontPackage:
+                                                                    'font_awesome_flutter')),
                                                             color: FlutterFlowTheme
                                                                     .of(context)
                                                                 .primaryText,

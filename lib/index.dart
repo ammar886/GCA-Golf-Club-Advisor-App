@@ -36,3 +36,4 @@ export '/pages/admin/review_detail_view/review_detail_view_widget.dart'
     show ReviewDetailViewWidget;
 export '/support/support_widget.dart' show SupportWidget;
 export '/pages/top_ten/top_ten_widget.dart' show TopTenWidget;
+export '/news_screen/news_screen_widget.dart' show NewsScreenWidget;
