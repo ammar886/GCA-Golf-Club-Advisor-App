@@ -11,6 +11,7 @@ import 'auth/supabase_auth/auth_util.dart';
 import '/backend/supabase/supabase.dart';
 import '/flutter_flow/flutter_flow_theme.dart';
 import 'flutter_flow/flutter_flow_util.dart';
+import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'index.dart';
 
 void main() async {
@@ -184,6 +185,7 @@ class _NavBarPageState extends State<NavBarPage> {
       'Home': HomeWidget(),
       'Map': MapWidget(),
       'topTen': TopTenWidget(),
+      'newsScreen': NewsScreenWidget(),
       'UserProfile': UserProfileWidget(),
     };
     final currentIndex = tabs.keys.toList().indexOf(_currentPageName);
@@ -223,6 +225,16 @@ class _NavBarPageState extends State<NavBarPage> {
               Icons.airline_stops,
             ),
             label: 'Top 10',
+            tooltip: '',
+          ),
+          BottomNavigationBarItem(
+            icon: FaIcon(
+              FaIconData(const IconData(/* newspaper */ 0xf1ea,
+                  fontFamily: 'FontAwesomeRegular',
+                  fontPackage: 'font_awesome_flutter')),
+              size: 24.0,
+            ),
+            label: 'News',
             tooltip: '',
           ),
           BottomNavigationBarItem(

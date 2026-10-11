@@ -2452,8 +2452,12 @@ class _ClubDetailedViewWidgetState extends State<ClubDetailedViewWidget>
                                               mainAxisSize: MainAxisSize.max,
                                               children: [
                                                 FaIcon(
-                                                  FaIconData(FontAwesomeIcons
-                                                      .smile.data),
+                                                  FaIconData(const IconData(
+                                                      /* smile */ 0xf118,
+                                                      fontFamily:
+                                                          'FontAwesomeRegular',
+                                                      fontPackage:
+                                                          'font_awesome_flutter')),
                                                   color: FlutterFlowTheme.of(
                                                           context)
                                                       .primary,

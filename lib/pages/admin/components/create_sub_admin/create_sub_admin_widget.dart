@@ -5,7 +5,6 @@ import '/flutter_flow/flutter_flow_widgets.dart';
 import '/pages/admin/components/admin_creation_success/admin_creation_success_widget.dart';
 import '/flutter_flow/random_data_util.dart' as random_data;
 import 'package:flutter/material.dart';
-import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'create_sub_admin_model.dart';
 export 'create_sub_admin_model.dart';
@@ -187,7 +186,9 @@ class _CreateSubAdminWidgetState extends State<CreateSubAdminWidget> {
                                 .secondaryBackground,
                             contentPadding: EdgeInsets.all(16.0),
                             prefixIcon: Icon(
-                              FontAwesomeIcons.user.data,
+                              const IconData(/* user */ 0xf007,
+                                  fontFamily: 'FontAwesomeRegular',
+                                  fontPackage: 'font_awesome_flutter'),
                               color: FlutterFlowTheme.of(context).primary,
                               size: 24.0,
                             ),
@@ -305,7 +306,9 @@ class _CreateSubAdminWidgetState extends State<CreateSubAdminWidget> {
                                 .secondaryBackground,
                             contentPadding: EdgeInsets.all(16.0),
                             prefixIcon: Icon(
-                              FontAwesomeIcons.user.data,
+                              const IconData(/* user */ 0xf007,
+                                  fontFamily: 'FontAwesomeRegular',
+                                  fontPackage: 'font_awesome_flutter'),
                               color: FlutterFlowTheme.of(context).primary,
                               size: 24.0,
                             ),
@@ -423,7 +426,9 @@ class _CreateSubAdminWidgetState extends State<CreateSubAdminWidget> {
                                 .secondaryBackground,
                             contentPadding: EdgeInsets.all(16.0),
                             prefixIcon: Icon(
-                              FontAwesomeIcons.user.data,
+                              const IconData(/* user */ 0xf007,
+                                  fontFamily: 'FontAwesomeRegular',
+                                  fontPackage: 'font_awesome_flutter'),
                               color: FlutterFlowTheme.of(context).primary,
                               size: 24.0,
                             ),
