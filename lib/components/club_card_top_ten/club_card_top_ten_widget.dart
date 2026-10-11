@@ -165,8 +165,10 @@ class _ClubCardTopTenWidgetState extends State<ClubCardTopTenWidget> {
                                   return '1';
                                 } else if (widget.index == 1) {
                                   return '2';
-                                } else {
+                                } else if (widget.index == 2) {
                                   return '3';
+                                } else {
+                                  return ((widget.index!) + 1).toString();
                                 }
                               }(),
                               style: FlutterFlowTheme.of(context)
@@ -255,6 +257,7 @@ class _ClubCardTopTenWidgetState extends State<ClubCardTopTenWidget> {
                                                       .titleSmall
                                                       .fontStyle,
                                             ),
+                                            fontSize: 12.0,
                                             letterSpacing: 0.0,
                                             fontWeight: FontWeight.bold,
                                             fontStyle:
