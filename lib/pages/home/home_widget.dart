@@ -10,6 +10,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/scheduler.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:infinite_scroll_pagination/infinite_scroll_pagination.dart';
+import 'package:provider/provider.dart';
 import 'home_model.dart';
 export 'home_model.dart';
 
@@ -41,6 +42,8 @@ class _HomeWidgetState extends State<HomeWidget> {
           currentUserUid,
         ),
       );
+      FFAppState().currentRole = _model.currentUser!.firstOrNull!.role!;
+      safeSetState(() {});
       if (_model.currentUser?.firstOrNull?.role == 'admin') {
         context.goNamed(AdminHomeWidget.routeName);
       } else {
@@ -64,6 +67,8 @@ class _HomeWidgetState extends State<HomeWidget> {
 
   @override
   Widget build(BuildContext context) {
+    context.watch<FFAppState>();
+
     return GestureDetector(
       onTap: () {
         FocusScope.of(context).unfocus();

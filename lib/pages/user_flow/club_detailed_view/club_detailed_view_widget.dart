@@ -344,7 +344,11 @@ class _ClubDetailedViewWidgetState extends State<ClubDetailedViewWidget>
                                         padding: EdgeInsetsDirectional.fromSTEB(
                                             4.0, 0.0, 0.0, 0.0),
                                         child: Text(
-                                          '0.0',
+                                          valueOrDefault<String>(
+                                            widget.clubDetails?.overallRating
+                                                ?.toString(),
+                                            '0.0',
+                                          ),
                                           style: FlutterFlowTheme.of(context)
                                               .bodyMedium
                                               .override(
