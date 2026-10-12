@@ -202,7 +202,7 @@ class _ReviewWidgetState extends State<ReviewWidget> {
                           child: Image.network(
                             valueOrDefault<String>(
                               rowUsersRow?.photoUrl,
-                              'https://picsum.photos/seed/780/600',
+                              'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRiRo5RsazUIy3LPn-DG57NPTKgVyRcUqqJODFRmkEdbg&s=10',
                             ),
                             fit: BoxFit.cover,
                           ),

@@ -130,10 +130,18 @@ class _ReviewsManagementWidgetState extends State<ReviewsManagementWidget> {
                         itemBuilder: (context, listViewIndex) {
                           final listViewClubReviewsRow =
                               listViewClubReviewsRowList[listViewIndex];
-                          return ReviewWidget(
-                            key: Key(
-                                'Key9fp_${listViewIndex}_of_${listViewClubReviewsRowList.length}'),
-                            reviewDetails: listViewClubReviewsRow,
+                          return wrapWithModel(
+                            model: _model.reviewModels.getModel(
+                              listViewClubReviewsRow.id!,
+                              listViewIndex,
+                            ),
+                            updateCallback: () => safeSetState(() {}),
+                            child: ReviewWidget(
+                              key: Key(
+                                'Key9fp_${listViewClubReviewsRow.id!}',
+                              ),
+                              reviewDetails: listViewClubReviewsRow,
+                            ),
                           );
                         },
                       );
