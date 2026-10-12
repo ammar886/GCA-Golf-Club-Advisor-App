@@ -330,13 +330,7 @@ class _TopTenWidgetState extends State<TopTenWidget> {
                             decoration: BoxDecoration(),
                             child: FutureBuilder<List<GolfClubsRow>>(
                               future: GolfClubsTable().queryRows(
-                                queryFn: (q) => q
-                                    .eqOrNull(
-                                      'isCompleted',
-                                      true,
-                                    )
-                                    .order('name', ascending: true)
-                                    .order('overall_rating'),
+                                queryFn: (q) => q.order('overall_rating'),
                                 limit: 10,
                               ),
                               builder: (context, snapshot) {

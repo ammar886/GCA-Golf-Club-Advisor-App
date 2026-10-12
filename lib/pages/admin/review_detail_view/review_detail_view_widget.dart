@@ -13,6 +13,7 @@ import 'package:flutter/scheduler.dart';
 import 'package:flutter_rating_bar/flutter_rating_bar.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:provider/provider.dart';
 import 'review_detail_view_model.dart';
 export 'review_detail_view_model.dart';
 
@@ -45,13 +46,16 @@ class _ReviewDetailViewWidgetState extends State<ReviewDetailViewWidget> {
     SchedulerBinding.instance.addPostFrameCallback((_) async {
       _model.reviewDetails = widget.review;
       safeSetState(() {});
+      safeSetState(() {
+        _model.textController?.text = widget.review!.comment!;
+      });
       _model.isLoading = false;
       safeSetState(() {});
     });
 
     _model.textController ??= TextEditingController(
         text: valueOrDefault<String>(
-      _model.reviewDetails?.comment,
+      widget.review?.comment,
       'comment',
     ));
     _model.textFieldFocusNode ??= FocusNode();
@@ -68,6 +72,8 @@ class _ReviewDetailViewWidgetState extends State<ReviewDetailViewWidget> {
 
   @override
   Widget build(BuildContext context) {
+    context.watch<FFAppState>();
+
     return GestureDetector(
       onTap: () {
         FocusScope.of(context).unfocus();
@@ -1789,7 +1795,8 @@ class _ReviewDetailViewWidgetState extends State<ReviewDetailViewWidget> {
                                     ),
                                   ],
                                 ),
-                              if (_model.reviewDetails?.status == 'pending')
+                              if ((_model.reviewDetails?.status == 'pending') &&
+                                  (FFAppState().currentRole == 'admin'))
                                 Padding(
                                   padding: EdgeInsetsDirectional.fromSTEB(
                                       12.0, 0.0, 12.0, 16.0),
@@ -2133,7 +2140,9 @@ class _ReviewDetailViewWidgetState extends State<ReviewDetailViewWidget> {
                                     ),
                                   ),
                                 ),
-                              if (_model.reviewDetails?.status == 'rejected')
+                              if ((_model.reviewDetails?.status ==
+                                      'rejected') &&
+                                  (FFAppState().currentRole == 'admin'))
                                 Align(
                                   alignment: AlignmentDirectional(1.0, -1.0),
                                   child: FFButtonWidget(
@@ -2238,7 +2247,9 @@ class _ReviewDetailViewWidgetState extends State<ReviewDetailViewWidget> {
                                     ),
                                   ),
                                 ),
-                              if (_model.reviewDetails?.status == 'approved')
+                              if ((_model.reviewDetails?.status ==
+                                      'approved') &&
+                                  (FFAppState().currentRole == 'admin'))
                                 Align(
                                   alignment: AlignmentDirectional(1.0, -1.0),
                                   child: FFButtonWidget(

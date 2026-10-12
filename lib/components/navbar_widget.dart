@@ -89,7 +89,7 @@ class _NavbarWidgetState extends State<NavbarWidget> {
                     ),
                   ),
                   Text(
-                    'Admin',
+                    'Home',
                     style: FlutterFlowTheme.of(context).bodyMedium.override(
                           font: GoogleFonts.inter(
                             fontWeight: FlutterFlowTheme.of(context)
