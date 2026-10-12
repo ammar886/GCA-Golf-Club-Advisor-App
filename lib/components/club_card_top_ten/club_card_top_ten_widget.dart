@@ -147,13 +147,13 @@ class _ClubCardTopTenWidgetState extends State<ClubCardTopTenWidget> {
                             decoration: BoxDecoration(
                               color: () {
                                 if (widget.index == 0) {
-                                  return Color(0xFFD4621A);
+                                  return Color(0xFFFFA366);
                                 } else if (widget.index == 1) {
                                   return Color(0xFFEEEEEE);
                                 } else if (widget.index == 2) {
-                                  return Color(0xFF4D2A00);
+                                  return Color(0xFF78542F);
                                 } else {
-                                  return Color(0xFFF2F2F2);
+                                  return Color(0x92EEEEEE);
                                 }
                               }(),
                               shape: BoxShape.circle,

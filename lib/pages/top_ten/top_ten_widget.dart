@@ -197,99 +197,111 @@ class _TopTenWidgetState extends State<TopTenWidget> {
                         ),
                       ],
                     ),
-                    Row(
-                      mainAxisSize: MainAxisSize.max,
-                      mainAxisAlignment:
-                          (FFMainAxisAlignment.center).flutterValue,
-                      children: [
-                        Align(
-                          alignment: AlignmentDirectional(0.0, -1.0),
-                          child: Text(
-                            'GREAT COURSES',
-                            textAlign: TextAlign.center,
-                            style: FlutterFlowTheme.of(context)
-                                .bodyMedium
-                                .override(
-                                  font: GoogleFonts.plusJakartaSans(
+                    Padding(
+                      padding:
+                          EdgeInsetsDirectional.fromSTEB(0.0, 4.0, 0.0, 0.0),
+                      child: Row(
+                        mainAxisSize: MainAxisSize.max,
+                        mainAxisAlignment:
+                            (FFMainAxisAlignment.center).flutterValue,
+                        children: [
+                          Align(
+                            alignment: AlignmentDirectional(0.0, -1.0),
+                            child: Text(
+                              'GREAT COURSES',
+                              textAlign: TextAlign.center,
+                              style: FlutterFlowTheme.of(context)
+                                  .bodyMedium
+                                  .override(
+                                    font: GoogleFonts.plusJakartaSans(
+                                      fontWeight: FontWeight.normal,
+                                      fontStyle: FlutterFlowTheme.of(context)
+                                          .bodyMedium
+                                          .fontStyle,
+                                    ),
+                                    color: FlutterFlowTheme.of(context)
+                                        .primaryText,
+                                    fontSize: 8.0,
+                                    letterSpacing: 1.2,
                                     fontWeight: FontWeight.normal,
                                     fontStyle: FlutterFlowTheme.of(context)
                                         .bodyMedium
                                         .fontStyle,
                                   ),
-                                  color:
-                                      FlutterFlowTheme.of(context).primaryText,
-                                  fontSize: 10.0,
-                                  letterSpacing: 1.2,
-                                  fontWeight: FontWeight.normal,
-                                  fontStyle: FlutterFlowTheme.of(context)
-                                      .bodyMedium
-                                      .fontStyle,
-                                ),
+                            ),
                           ),
-                        ),
-                        Icon(
-                          Icons.star,
-                          color: FlutterFlowTheme.of(context).warning,
-                          size: 14.0,
-                        ),
-                        Align(
-                          alignment: AlignmentDirectional(0.0, -1.0),
-                          child: Text(
-                            'REAL REVIEWS',
-                            textAlign: TextAlign.center,
-                            style: FlutterFlowTheme.of(context)
-                                .bodyMedium
-                                .override(
-                                  font: GoogleFonts.plusJakartaSans(
+                          Padding(
+                            padding: EdgeInsetsDirectional.fromSTEB(
+                                2.0, 0.0, 2.0, 0.0),
+                            child: Icon(
+                              Icons.star,
+                              color: FlutterFlowTheme.of(context).warning,
+                              size: 12.0,
+                            ),
+                          ),
+                          Align(
+                            alignment: AlignmentDirectional(0.0, -1.0),
+                            child: Text(
+                              'REAL REVIEWS',
+                              textAlign: TextAlign.center,
+                              style: FlutterFlowTheme.of(context)
+                                  .bodyMedium
+                                  .override(
+                                    font: GoogleFonts.plusJakartaSans(
+                                      fontWeight: FontWeight.normal,
+                                      fontStyle: FlutterFlowTheme.of(context)
+                                          .bodyMedium
+                                          .fontStyle,
+                                    ),
+                                    color: FlutterFlowTheme.of(context)
+                                        .primaryText,
+                                    fontSize: 8.0,
+                                    letterSpacing: 1.2,
                                     fontWeight: FontWeight.normal,
                                     fontStyle: FlutterFlowTheme.of(context)
                                         .bodyMedium
                                         .fontStyle,
                                   ),
-                                  color:
-                                      FlutterFlowTheme.of(context).primaryText,
-                                  fontSize: 10.0,
-                                  letterSpacing: 1.2,
-                                  fontWeight: FontWeight.normal,
-                                  fontStyle: FlutterFlowTheme.of(context)
-                                      .bodyMedium
-                                      .fontStyle,
-                                ),
+                            ),
                           ),
-                        ),
-                        Icon(
-                          Icons.star,
-                          color: FlutterFlowTheme.of(context).warning,
-                          size: 14.0,
-                        ),
-                        Align(
-                          alignment: AlignmentDirectional(0.0, -1.0),
-                          child: Text(
-                            'BETTER CHOICES',
-                            textAlign: TextAlign.center,
-                            style: FlutterFlowTheme.of(context)
-                                .bodyMedium
-                                .override(
-                                  font: GoogleFonts.plusJakartaSans(
+                          Padding(
+                            padding: EdgeInsetsDirectional.fromSTEB(
+                                2.0, 0.0, 2.0, 0.0),
+                            child: Icon(
+                              Icons.star,
+                              color: FlutterFlowTheme.of(context).warning,
+                              size: 12.0,
+                            ),
+                          ),
+                          Align(
+                            alignment: AlignmentDirectional(0.0, -1.0),
+                            child: Text(
+                              'BETTER CHOICES',
+                              textAlign: TextAlign.center,
+                              style: FlutterFlowTheme.of(context)
+                                  .bodyMedium
+                                  .override(
+                                    font: GoogleFonts.plusJakartaSans(
+                                      fontWeight: FontWeight.normal,
+                                      fontStyle: FlutterFlowTheme.of(context)
+                                          .bodyMedium
+                                          .fontStyle,
+                                    ),
+                                    color: FlutterFlowTheme.of(context)
+                                        .primaryText,
+                                    fontSize: 8.0,
+                                    letterSpacing: 1.2,
                                     fontWeight: FontWeight.normal,
                                     fontStyle: FlutterFlowTheme.of(context)
                                         .bodyMedium
                                         .fontStyle,
                                   ),
-                                  color:
-                                      FlutterFlowTheme.of(context).primaryText,
-                                  fontSize: 10.0,
-                                  letterSpacing: 1.2,
-                                  fontWeight: FontWeight.normal,
-                                  fontStyle: FlutterFlowTheme.of(context)
-                                      .bodyMedium
-                                      .fontStyle,
-                                ),
+                            ),
                           ),
-                        ),
-                      ].divide(SizedBox(width: 3.0)),
+                        ],
+                      ),
                     ),
-                  ].divide(SizedBox(height: 8.0)),
+                  ],
                 ),
                 centerTitle: true,
                 expandedTitleScale: 1.0,
