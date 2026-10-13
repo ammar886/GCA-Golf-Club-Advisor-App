@@ -549,7 +549,7 @@ class _ClubDetailedViewWidgetState extends State<ClubDetailedViewWidget>
                                       Tab(
                                         text: 'OVERVIEW',
                                       ),
-                                      Tab(nt dis
+                                      Tab(
                                         text: 'REVIEWS',
                                       ),
                                       Tab(
