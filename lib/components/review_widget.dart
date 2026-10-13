@@ -92,6 +92,58 @@ class _ReviewWidgetState extends State<ReviewWidget> {
               crossAxisAlignment: (FFCrossAxisAlignment.start).flutterValue,
               textBaseline: TextBaseline.alphabetic,
               children: [
+                Align(
+                  alignment: AlignmentDirectional(1.0, -1.0),
+                  child: Container(
+                    decoration: BoxDecoration(
+                      color: () {
+                        if (widget.reviewDetails?.status == 'pending') {
+                          return Color(0xFFF4E661);
+                        } else if (widget.reviewDetails?.status ==
+                            'approved') {
+                          return FlutterFlowTheme.of(context).primary;
+                        } else {
+                          return FlutterFlowTheme.of(context).tertiary;
+                        }
+                      }(),
+                      borderRadius: BorderRadius.circular(8.0),
+                    ),
+                    child: Padding(
+                      padding: EdgeInsets.all(8.0),
+                      child: Text(
+                        'Pending',
+                        style: FlutterFlowTheme.of(context).bodyMedium.override(
+                              font: GoogleFonts.inter(
+                                fontWeight: FontWeight.w600,
+                                fontStyle: FlutterFlowTheme.of(context)
+                                    .bodyMedium
+                                    .fontStyle,
+                              ),
+                              color: () {
+                                if (widget.reviewDetails?.status ==
+                                    'pending') {
+                                  return FlutterFlowTheme.of(context)
+                                      .secondaryBackground;
+                                } else if (widget.reviewDetails?.status ==
+                                    'approved') {
+                                  return FlutterFlowTheme.of(context)
+                                      .primaryText;
+                                } else {
+                                  return FlutterFlowTheme.of(context)
+                                      .secondaryBackground;
+                                }
+                              }(),
+                              fontSize: 12.0,
+                              letterSpacing: 0.0,
+                              fontWeight: FontWeight.w600,
+                              fontStyle: FlutterFlowTheme.of(context)
+                                  .bodyMedium
+                                  .fontStyle,
+                            ),
+                      ),
+                    ),
+                  ),
+                ),
                 ClipRRect(
                   borderRadius: BorderRadius.circular(8.0),
                   child: Image.network(

@@ -36,6 +36,9 @@ class _HomeWidgetState extends State<HomeWidget> {
 
     // On page load action.
     SchedulerBinding.instance.addPostFrameCallback((_) async {
+      if (RootPageContext.isInactiveRootPage(context)) {
+        return;
+      }
       _model.currentUser = await UsersTable().queryRows(
         queryFn: (q) => q.eqOrNull(
           'id',
