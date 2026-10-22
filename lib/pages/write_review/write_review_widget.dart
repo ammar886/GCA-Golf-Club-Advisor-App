@@ -62,6 +62,15 @@ class _WriteReviewWidgetState extends State<WriteReviewWidget> {
   }
 
   @override
+  void didUpdateWidget(covariant WriteReviewWidget oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (widget.clubDetails != null &&
+        widget.clubDetails != oldWidget.clubDetails) {
+      _model.selectedClub = widget.clubDetails;
+    }
+  }
+
+  @override
   void dispose() {
     _model.dispose();
 

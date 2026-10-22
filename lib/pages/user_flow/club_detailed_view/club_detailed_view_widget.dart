@@ -640,8 +640,22 @@ class _ClubDetailedViewWidgetState extends State<ClubDetailedViewWidget>
                                                         Colors.transparent,
                                                     onTap: () async {
                                                       context.pushNamed(
-                                                          WriteReviewWidget
-                                                              .routeName);
+                                                        WriteReviewWidget
+                                                            .routeName,
+                                                        queryParameters: {
+                                                          'clubDetails':
+                                                              serializeParam(
+                                                            widget.clubDetails,
+                                                            ParamType
+                                                                .SupabaseRow,
+                                                          ),
+                                                        }.withoutNulls,
+                                                        extra: <String,
+                                                            dynamic>{
+                                                          'clubDetails': widget
+                                                              .clubDetails,
+                                                        },
+                                                      );
                                                     },
                                                     child: Container(
                                                       width: 150.0,
@@ -3566,7 +3580,18 @@ class _ClubDetailedViewWidgetState extends State<ClubDetailedViewWidget>
                           hoverColor: Colors.transparent,
                           highlightColor: Colors.transparent,
                           onTap: () async {
-                            context.pushNamed(WriteReviewWidget.routeName);
+                            context.pushNamed(
+                              WriteReviewWidget.routeName,
+                              queryParameters: {
+                                'clubDetails': serializeParam(
+                                  widget.clubDetails,
+                                  ParamType.SupabaseRow,
+                                ),
+                              }.withoutNulls,
+                              extra: <String, dynamic>{
+                                'clubDetails': widget.clubDetails,
+                              },
+                            );
                           },
                           child: wrapWithModel(
                             model: _model.fabModel,
