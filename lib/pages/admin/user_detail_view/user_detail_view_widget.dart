@@ -480,7 +480,7 @@ class _UserDetailViewWidgetState extends State<UserDetailViewWidget> {
                                   child: Text(
                                     user.id ?? 'N/A',
                                     overflow: TextOverflow.ellipsis,
-                                    style: GoogleFonts.inter(
+                                    style: TextStyle(
                                       fontFamily: 'monospace',
                                       fontSize: 12.0,
                                       color: FlutterFlowTheme.of(context).secondaryText,
