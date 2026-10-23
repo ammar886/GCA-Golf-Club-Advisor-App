@@ -39,3 +39,7 @@ export '/pages/admin/review_detail_view/review_detail_view_widget.dart'
 export '/support/support_widget.dart' show SupportWidget;
 export '/pages/top_ten/top_ten_widget.dart' show TopTenWidget;
 export '/news_screen/news_screen_widget.dart' show NewsScreenWidget;
+export '/pages/admin/user_management/user_management_widget.dart'
+    show UserManagementWidget;
+export '/pages/admin/user_detail_view/user_detail_view_widget.dart'
+    show UserDetailViewWidget;

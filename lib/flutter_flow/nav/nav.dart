@@ -266,6 +266,27 @@ GoRouter createRouter(AppStateNotifier appStateNotifier) => GoRouter(
           ),
         ),
         FFRoute(
+          name: UserManagementWidget.routeName,
+          path: UserManagementWidget.routePath,
+          requireAuth: true,
+          builder: (context, params) => UserManagementWidget(),
+        ),
+        FFRoute(
+          name: UserDetailViewWidget.routeName,
+          path: UserDetailViewWidget.routePath,
+          requireAuth: true,
+          builder: (context, params) => UserDetailViewWidget(
+            user: params.getParam<UsersRow>(
+              'user',
+              ParamType.SupabaseRow,
+            ),
+            userId: params.getParam<String>(
+              'userId',
+              ParamType.String,
+            ),
+          ),
+        ),
+        FFRoute(
           name: SupportWidget.routeName,
           path: SupportWidget.routePath,
           builder: (context, params) => SupportWidget(),

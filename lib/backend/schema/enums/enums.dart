@@ -16,6 +16,7 @@ enum AdminTabs {
   subAdmins,
   profile,
   reviews,
+  userManagement,
 }
 
 extension FFEnumExtensions<T extends Enum> on T {

@@ -125,6 +125,50 @@ class _NavbarWidgetState extends State<NavbarWidget> {
                       hoverColor: Colors.transparent,
                       highlightColor: Colors.transparent,
                       onTap: () async {
+                        if (widget.tabSelected != AdminTabs.userManagement) {
+                          context.pushNamed(UserManagementWidget.routeName);
+                        }
+                      },
+                      child: Icon(
+                        Icons.manage_accounts_rounded,
+                        color: widget.tabSelected == AdminTabs.userManagement
+                            ? FlutterFlowTheme.of(context).primary
+                            : FlutterFlowTheme.of(context).secondaryText,
+                        size: widget.tabSelected == AdminTabs.userManagement ? 28.0 : 26.0,
+                      ),
+                    ),
+                    Text(
+                      'Users',
+                      style: FlutterFlowTheme.of(context).bodyMedium.override(
+                            font: GoogleFonts.inter(
+                              fontWeight: FlutterFlowTheme.of(context)
+                                  .bodyMedium
+                                  .fontWeight,
+                              fontStyle: FlutterFlowTheme.of(context)
+                                  .bodyMedium
+                                  .fontStyle,
+                            ),
+                            color: widget.tabSelected == AdminTabs.userManagement
+                                ? FlutterFlowTheme.of(context).primary
+                                : FlutterFlowTheme.of(context).secondaryText,
+                            fontSize: widget.tabSelected == AdminTabs.userManagement
+                                ? 14.0
+                                : 12.0,
+                            letterSpacing: 0.0,
+                          ),
+                    ),
+                  ],
+                ),
+              if (FFAppState().currentRole == 'admin')
+                Column(
+                  mainAxisSize: MainAxisSize.max,
+                  children: [
+                    InkWell(
+                      splashColor: Colors.transparent,
+                      focusColor: Colors.transparent,
+                      hoverColor: Colors.transparent,
+                      highlightColor: Colors.transparent,
+                      onTap: () async {
                         if (widget.tabSelected != AdminTabs.subAdmins) {
                           context.pushNamed(SubAdminManagementWidget.routeName);
                         }
@@ -200,10 +244,10 @@ class _NavbarWidgetState extends State<NavbarWidget> {
                                 .bodyMedium
                                 .fontStyle,
                           ),
-                          color: widget.tabSelected == AdminTabs.subAdmins
+                          color: widget.tabSelected == AdminTabs.reviews
                               ? FlutterFlowTheme.of(context).primary
                               : FlutterFlowTheme.of(context).secondaryText,
-                          fontSize: widget.tabSelected == AdminTabs.subAdmins
+                          fontSize: widget.tabSelected == AdminTabs.reviews
                               ? 14.0
                               : 12.0,
                           letterSpacing: 0.0,

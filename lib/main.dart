@@ -181,14 +181,18 @@ class _NavBarPageState extends State<NavBarPage> {
 
   @override
   Widget build(BuildContext context) {
-    final tabs = {
+    final isAdmin = FFAppState().currentRole == 'admin';
+    final tabs = <String, Widget>{
       'Home': HomeWidget(),
       'Map': MapWidget(),
       'topTen': TopTenWidget(),
       'newsScreen': NewsScreenWidget(),
       'UserProfile': UserProfileWidget(),
+      if (isAdmin) 'userManagement': UserManagementWidget(),
     };
-    final currentIndex = tabs.keys.toList().indexOf(_currentPageName);
+    final currentIndex = tabs.keys.toList().contains(_currentPageName)
+        ? tabs.keys.toList().indexOf(_currentPageName)
+        : 0;
 
     return Scaffold(
       resizeToAvoidBottomInset: !widget.disableResizeToAvoidBottomInset,
@@ -243,7 +247,15 @@ class _NavBarPageState extends State<NavBarPage> {
             ),
             label: 'Profile',
             tooltip: '',
-          )
+          ),
+          if (isAdmin)
+            BottomNavigationBarItem(
+              icon: Icon(
+                Icons.manage_accounts,
+              ),
+              label: 'Users',
+              tooltip: '',
+            ),
         ],
       ),
     );
