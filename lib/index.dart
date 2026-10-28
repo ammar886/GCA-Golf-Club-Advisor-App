@@ -43,3 +43,5 @@ export '/pages/admin/user_management/user_management_widget.dart'
     show UserManagementWidget;
 export '/pages/admin/user_detail_view/user_detail_view_widget.dart'
     show UserDetailViewWidget;
+export '/components/guest_auth_bottom_sheet.dart'
+    show GuestAuthBottomSheet, showGuestAuthBottomSheet;

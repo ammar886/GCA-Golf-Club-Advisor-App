@@ -47,6 +47,13 @@ class _MyReviewsWidgetState extends State<MyReviewsWidget> {
   }
 
   Future<void> _loadUserReviews() async {
+    if (FFAppState().isGuest || currentUserUid.isEmpty) {
+      _model.userReviews = [];
+      _model.clubMap = {};
+      safeSetState(() => _model.isLoading = false);
+      return;
+    }
+
     safeSetState(() => _model.isLoading = true);
 
     try {

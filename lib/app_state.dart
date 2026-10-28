@@ -24,6 +24,9 @@ class FFAppState extends ChangeNotifier {
       _currentRole =
           await secureStorage.getString('ff_currentRole') ?? _currentRole;
     });
+    await _safeInitAsync(() async {
+      _isGuest = await secureStorage.getBool('ff_isGuest') ?? _isGuest;
+    });
   }
 
   void update(VoidCallback callback) {
@@ -42,6 +45,20 @@ class FFAppState extends ChangeNotifier {
 
   void deleteCurrentRole() {
     secureStorage.delete(key: 'ff_currentRole');
+  }
+
+  bool _isGuest = false;
+  bool get isGuest => _isGuest;
+  set isGuest(bool value) {
+    _isGuest = value;
+    secureStorage.setBool('ff_isGuest', value);
+    notifyListeners();
+  }
+
+  void clearGuestMode() {
+    _isGuest = false;
+    secureStorage.delete(key: 'ff_isGuest');
+    notifyListeners();
   }
 
   bool _subjectVald = true;

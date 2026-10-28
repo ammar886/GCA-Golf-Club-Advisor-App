@@ -39,13 +39,21 @@ class _HomeWidgetState extends State<HomeWidget> {
       if (RootPageContext.isInactiveRootPage(context)) {
         return;
       }
+      if (FFAppState().isGuest) {
+        FFAppState().currentRole = 'guest';
+        _model.isLoading = false;
+        safeSetState(() {});
+        return;
+      }
       _model.currentUser = await UsersTable().queryRows(
         queryFn: (q) => q.eqOrNull(
           'id',
           currentUserUid,
         ),
       );
-      FFAppState().currentRole = _model.currentUser!.firstOrNull!.role!;
+      if (_model.currentUser?.firstOrNull?.role != null) {
+        FFAppState().currentRole = _model.currentUser!.firstOrNull!.role!;
+      }
       safeSetState(() {});
       if (_model.currentUser?.firstOrNull?.role == 'admin') {
         context.goNamed(AdminHomeWidget.routeName);

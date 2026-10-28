@@ -181,7 +181,8 @@ class _NavBarPageState extends State<NavBarPage> {
 
   @override
   Widget build(BuildContext context) {
-    final isAdmin = FFAppState().currentRole == 'admin';
+    final isGuest = FFAppState().isGuest;
+    final isAdmin = !isGuest && FFAppState().currentRole == 'admin';
     final tabs = <String, Widget>{
       'Home': HomeWidget(),
       'Map': MapWidget(),
@@ -199,10 +200,23 @@ class _NavBarPageState extends State<NavBarPage> {
       body: _currentPage ?? tabs[_currentPageName],
       bottomNavigationBar: BottomNavigationBar(
         currentIndex: currentIndex,
-        onTap: (i) => safeSetState(() {
-          _currentPage = null;
-          _currentPageName = tabs.keys.toList()[i];
-        }),
+        onTap: (i) {
+          final tabKey = tabs.keys.toList()[i];
+          if (isGuest && tabKey == 'UserProfile') {
+            showGuestAuthBottomSheet(
+              context,
+              title: 'Sign In to View Profile',
+              message:
+                  'You are browsing as a guest. Sign in or create an account to view and manage your golfer profile and handicap.',
+              icon: Icons.account_circle_outlined,
+            );
+            return;
+          }
+          safeSetState(() {
+            _currentPage = null;
+            _currentPageName = tabKey;
+          });
+        },
         backgroundColor: FlutterFlowTheme.of(context).primaryBackground,
         selectedItemColor: FlutterFlowTheme.of(context).primary,
         unselectedItemColor: FlutterFlowTheme.of(context).secondaryText,
@@ -243,7 +257,7 @@ class _NavBarPageState extends State<NavBarPage> {
           ),
           BottomNavigationBarItem(
             icon: Icon(
-              Icons.person,
+              isGuest ? Icons.account_circle_outlined : Icons.person,
             ),
             label: 'Profile',
             tooltip: '',

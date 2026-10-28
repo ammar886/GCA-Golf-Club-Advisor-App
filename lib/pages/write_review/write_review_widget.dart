@@ -15,6 +15,7 @@ import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:provider/provider.dart';
 import '/pages/my_reviews/my_reviews_widget.dart';
+import '/index.dart';
 import 'write_review_model.dart';
 export 'write_review_model.dart';
 
@@ -58,7 +59,21 @@ class _WriteReviewWidgetState extends State<WriteReviewWidget> {
           });
     }
 
-    WidgetsBinding.instance.addPostFrameCallback((_) => safeSetState(() {}));
+    WidgetsBinding.instance.addPostFrameCallback((_) async {
+      if (FFAppState().isGuest || currentUserUid.isEmpty) {
+        await showGuestAuthBottomSheet(
+          context,
+          title: 'Sign In to Leave a Review',
+          message:
+              'Guest users can explore clubs and read reviews. Please sign in or create an account to write a review.',
+        );
+        if (mounted) {
+          context.safePop();
+        }
+        return;
+      }
+      safeSetState(() {});
+    });
   }
 
   @override
@@ -78,12 +93,12 @@ class _WriteReviewWidgetState extends State<WriteReviewWidget> {
   }
 
   Future<void> _submitReview() async {
-    if (currentUserUid.isEmpty) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text('Please log in to submit a review.'),
-          backgroundColor: FlutterFlowTheme.of(context).error,
-        ),
+    if (FFAppState().isGuest || currentUserUid.isEmpty) {
+      await showGuestAuthBottomSheet(
+        context,
+        title: 'Sign In to Leave a Review',
+        message:
+            'Guest users cannot submit reviews. Please sign in or create an account to share your review.',
       );
       return;
     }

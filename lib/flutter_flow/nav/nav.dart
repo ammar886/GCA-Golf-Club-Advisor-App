@@ -86,7 +86,9 @@ GoRouter createRouter(AppStateNotifier appStateNotifier) => GoRouter(
       refreshListenable: appStateNotifier,
       navigatorKey: appNavigatorKey,
       errorBuilder: (context, state) => RootPageContext.wrap(
-        appStateNotifier.loggedIn ? NavBarPage() : SplashWidget(),
+        (appStateNotifier.loggedIn || FFAppState().isGuest)
+            ? NavBarPage()
+            : SplashWidget(),
         errorRoute: state.uri.toString(),
       ),
       routes: [
@@ -94,7 +96,9 @@ GoRouter createRouter(AppStateNotifier appStateNotifier) => GoRouter(
           name: '_initialize',
           path: '/',
           builder: (context, _) => RootPageContext.wrap(
-            appStateNotifier.loggedIn ? NavBarPage() : SplashWidget(),
+            (appStateNotifier.loggedIn || FFAppState().isGuest)
+                ? NavBarPage()
+                : SplashWidget(),
           ),
         ),
         FFRoute(
@@ -474,6 +478,11 @@ class FFRoute {
           }
 
           if (requireAuth && !appStateNotifier.loggedIn) {
+            if (FFAppState().isGuest &&
+                (name == HomeWidget.routeName ||
+                    name == UserProfileWidget.routeName)) {
+              return null;
+            }
             appStateNotifier.setRedirectLocationIfUnset(state.uri.toString());
             return '/splash';
           }

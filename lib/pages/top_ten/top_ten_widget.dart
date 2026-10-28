@@ -34,6 +34,11 @@ class _TopTenWidgetState extends State<TopTenWidget> {
 
     // On page load action.
     SchedulerBinding.instance.addPostFrameCallback((_) async {
+      if (FFAppState().isGuest) {
+        _model.isLoading = false;
+        safeSetState(() {});
+        return;
+      }
       _model.currentUser = await UsersTable().queryRows(
         queryFn: (q) => q.eqOrNull(
           'id',

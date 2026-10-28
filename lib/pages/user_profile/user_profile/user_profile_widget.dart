@@ -5,6 +5,7 @@ import '/flutter_flow/ff_builtin_enums.dart';
 import '/flutter_flow/flutter_flow_icon_button.dart';
 import '/flutter_flow/flutter_flow_theme.dart';
 import '/flutter_flow/flutter_flow_util.dart';
+import '/flutter_flow/flutter_flow_widgets.dart';
 import '/pages/user_profile/golfer_card/golfer_card_widget.dart';
 import '/index.dart';
 import 'package:flutter/material.dart';
@@ -40,6 +41,11 @@ class _UserProfileWidgetState extends State<UserProfileWidget> {
 
     // On page load action.
     SchedulerBinding.instance.addPostFrameCallback((_) async {
+      if (FFAppState().isGuest) {
+        _model.isLoading = false;
+        safeSetState(() {});
+        return;
+      }
       _model.userDetails = await UsersTable().queryRows(
         queryFn: (q) => q.eqOrNull(
           'id',
@@ -165,11 +171,43 @@ class _UserProfileWidgetState extends State<UserProfileWidget> {
                       buttonSize: 40.0,
                       fillColor: Colors.transparent,
                       icon: Icon(
+                        Icons.rate_review_outlined,
+                        color: FlutterFlowTheme.of(context).tertiary,
+                        size: 24.0,
+                      ),
+                      onPressed: () async {
+                        if (FFAppState().isGuest) {
+                          await showGuestAuthBottomSheet(
+                            context,
+                            title: 'Sign In to View Reviews',
+                            message:
+                                'Guest users can browse clubs and public reviews. Sign in or create an account to view and manage your submitted reviews.',
+                          );
+                          return;
+                        }
+                        context.pushNamed(MyReviewsWidget.routeName);
+                      },
+                    ),
+                    FlutterFlowIconButton(
+                      borderRadius: 8.0,
+                      buttonSize: 40.0,
+                      fillColor: Colors.transparent,
+                      icon: Icon(
                         Icons.edit,
                         color: FlutterFlowTheme.of(context).tertiary,
                         size: 24.0,
                       ),
                       onPressed: () async {
+                        if (FFAppState().isGuest) {
+                          await showGuestAuthBottomSheet(
+                            context,
+                            title: 'Sign In to Edit Profile',
+                            message:
+                                'Guest users cannot edit profile. Sign in or create an account to manage your golfer profile.',
+                            icon: Icons.edit_rounded,
+                          );
+                          return;
+                        }
                         context.pushNamed(
                           EditProfileWidget.routeName,
                           queryParameters: {
@@ -191,6 +229,12 @@ class _UserProfileWidgetState extends State<UserProfileWidget> {
                         size: 24.0,
                       ),
                       onPressed: () async {
+                        if (FFAppState().isGuest) {
+                          FFAppState().clearGuestMode();
+                          context.goNamedAuth(
+                              SplashWidget.routeName, context.mounted);
+                          return;
+                        }
                         GoRouter.of(context).prepareAuthEvent();
                         await authManager.signOut();
                         GoRouter.of(context).clearRedirectLocation();
@@ -232,7 +276,131 @@ class _UserProfileWidgetState extends State<UserProfileWidget> {
                                 mainAxisAlignment: MainAxisAlignment.start,
                                 crossAxisAlignment: CrossAxisAlignment.center,
                                 children: [
-                                  if (!widget.isAdmin)
+                                  if (FFAppState().isGuest)
+                                    Container(
+                                      width: double.infinity,
+                                      padding: EdgeInsets.all(24.0),
+                                      decoration: BoxDecoration(
+                                        color: FlutterFlowTheme.of(context)
+                                            .secondaryBackground,
+                                        borderRadius:
+                                            BorderRadius.circular(16.0),
+                                      ),
+                                      child: Column(
+                                        mainAxisSize: MainAxisSize.min,
+                                        crossAxisAlignment:
+                                            CrossAxisAlignment.center,
+                                        children: [
+                                          Container(
+                                            width: 80.0,
+                                            height: 80.0,
+                                            decoration: BoxDecoration(
+                                              color:
+                                                  FlutterFlowTheme.of(context)
+                                                      .primary
+                                                      .withOpacity(0.12),
+                                              shape: BoxShape.circle,
+                                            ),
+                                            child: Icon(
+                                              Icons.person_outline_rounded,
+                                              color:
+                                                  FlutterFlowTheme.of(context)
+                                                      .primary,
+                                              size: 44.0,
+                                            ),
+                                          ),
+                                          SizedBox(height: 16.0),
+                                          Text(
+                                            'Guest Golfer',
+                                            style: GoogleFonts.plusJakartaSans(
+                                              fontSize: 22.0,
+                                              fontWeight: FontWeight.bold,
+                                              color:
+                                                  FlutterFlowTheme.of(context)
+                                                      .primaryText,
+                                            ),
+                                          ),
+                                          SizedBox(height: 6.0),
+                                          Text(
+                                            'Guest Mode Active',
+                                            style: GoogleFonts.inter(
+                                              fontSize: 13.0,
+                                              fontWeight: FontWeight.w600,
+                                              color:
+                                                  FlutterFlowTheme.of(context)
+                                                      .primary,
+                                            ),
+                                          ),
+                                          SizedBox(height: 14.0),
+                                          Text(
+                                            'You are currently exploring Golf Club Advisor as a guest. Sign in or create an account to view your personalized golfer profile, save your preferences, and submit reviews.',
+                                            textAlign: TextAlign.center,
+                                            style: GoogleFonts.inter(
+                                              fontSize: 13.0,
+                                              color:
+                                                  FlutterFlowTheme.of(context)
+                                                      .secondaryText,
+                                              height: 1.5,
+                                            ),
+                                          ),
+                                          SizedBox(height: 24.0),
+                                          FFButtonWidget(
+                                            onPressed: () async {
+                                              context.pushNamed(
+                                                  LoginWidget.routeName);
+                                            },
+                                            text: 'Sign In',
+                                            options: FFButtonOptions(
+                                              width: double.infinity,
+                                              height: 44.0,
+                                              color:
+                                                  FlutterFlowTheme.of(context)
+                                                      .primary,
+                                              textStyle:
+                                                  GoogleFonts.plusJakartaSans(
+                                                color: Colors.white,
+                                                fontWeight: FontWeight.w600,
+                                                fontSize: 14.0,
+                                              ),
+                                              borderRadius:
+                                                  BorderRadius.circular(10.0),
+                                            ),
+                                          ),
+                                          SizedBox(height: 12.0),
+                                          FFButtonWidget(
+                                            onPressed: () async {
+                                              context.pushNamed(
+                                                  SignupWidget.routeName);
+                                            },
+                                            text: 'Create an Account',
+                                            options: FFButtonOptions(
+                                              width: double.infinity,
+                                              height: 44.0,
+                                              color:
+                                                  FlutterFlowTheme.of(context)
+                                                      .secondaryBackground,
+                                              textStyle:
+                                                  GoogleFonts.plusJakartaSans(
+                                                color:
+                                                    FlutterFlowTheme.of(context)
+                                                        .primary,
+                                                fontWeight: FontWeight.w600,
+                                                fontSize: 14.0,
+                                              ),
+                                              borderSide: BorderSide(
+                                                color: FlutterFlowTheme.of(
+                                                        context)
+                                                    .primary,
+                                                width: 1.5,
+                                              ),
+                                              borderRadius:
+                                                  BorderRadius.circular(10.0),
+                                            ),
+                                          ),
+                                        ],
+                                      ),
+                                    )
+                                  else if (!widget.isAdmin)
                                     wrapWithModel(
                                       model: _model.golferCardModel,
                                       updateCallback: () => safeSetState(() {}),

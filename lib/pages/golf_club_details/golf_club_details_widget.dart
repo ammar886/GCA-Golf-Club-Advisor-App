@@ -63,6 +63,15 @@ class _GolfClubDetailsWidgetState extends State<GolfClubDetailsWidget> {
         backgroundColor: FlutterFlowTheme.of(context).primaryBackground,
         floatingActionButton: FloatingActionButton.extended(
           onPressed: () async {
+            if (FFAppState().isGuest) {
+              await showGuestAuthBottomSheet(
+                context,
+                title: 'Sign In to Leave a Review',
+                message:
+                    'You are browsing as a guest. Please sign in or create an account to write a review and rate this golf club.',
+              );
+              return;
+            }
             context.pushNamed(
               WriteReviewWidget.routeName,
               queryParameters: {

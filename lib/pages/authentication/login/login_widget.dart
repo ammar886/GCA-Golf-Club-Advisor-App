@@ -357,6 +357,7 @@ class _LoginWidgetState extends State<LoginWidget> {
                         if ((_model.authUser?.firstOrNull?.isBlocked ==
                                 false) ||
                             (_model.authUser?.firstOrNull?.isBlocked == null)) {
+                          FFAppState().clearGuestMode();
                           FFAppState().currentRole =
                               _model.authUser!.firstOrNull!.role!;
                           safeSetState(() {});
@@ -416,8 +417,8 @@ class _LoginWidgetState extends State<LoginWidget> {
                                   color: Colors.white,
                                   letterSpacing: 0.0,
                                   fontWeight: FlutterFlowTheme.of(context)
-                                      .titleSmall
-                                      .fontWeight,
+                                  .titleSmall
+                                  .fontWeight,
                                   fontStyle: FlutterFlowTheme.of(context)
                                       .titleSmall
                                       .fontStyle,
@@ -495,6 +496,83 @@ class _LoginWidgetState extends State<LoginWidget> {
                                     .fontStyle,
                                 lineHeight: 1.4,
                               ),
+                        ),
+                      ),
+                    ),
+                    Padding(
+                      padding:
+                          EdgeInsetsDirectional.fromSTEB(0.0, 24.0, 0.0, 0.0),
+                      child: Row(
+                        children: [
+                          Expanded(
+                            child: Divider(
+                              color: FlutterFlowTheme.of(context).alternate,
+                              thickness: 1.0,
+                            ),
+                          ),
+                          Padding(
+                            padding: EdgeInsetsDirectional.fromSTEB(
+                                12.0, 0.0, 12.0, 0.0),
+                            child: Text(
+                              'OR',
+                              style: FlutterFlowTheme.of(context)
+                                  .labelSmall
+                                  .override(
+                                    font: GoogleFonts.inter(),
+                                    color: FlutterFlowTheme.of(context)
+                                        .secondaryText,
+                                  ),
+                            ),
+                          ),
+                          Expanded(
+                            child: Divider(
+                              color: FlutterFlowTheme.of(context).alternate,
+                              thickness: 1.0,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                    Padding(
+                      padding:
+                          EdgeInsetsDirectional.fromSTEB(0.0, 16.0, 0.0, 0.0),
+                      child: FFButtonWidget(
+                        onPressed: () async {
+                          FFAppState().isGuest = true;
+                          FFAppState().currentRole = 'guest';
+                          context.goNamed(HomeWidget.routeName);
+                        },
+                        text: 'Continue as Guest',
+                        icon: Icon(
+                          Icons.explore_outlined,
+                          size: 18.0,
+                          color: FlutterFlowTheme.of(context).primary,
+                        ),
+                        options: FFButtonOptions(
+                          width: double.infinity,
+                          height: 42.0,
+                          padding: EdgeInsetsDirectional.fromSTEB(
+                              16.0, 0.0, 16.0, 0.0),
+                          iconPadding: EdgeInsetsDirectional.fromSTEB(
+                              0.0, 0.0, 8.0, 0.0),
+                          color: FlutterFlowTheme.of(context)
+                              .secondaryBackground,
+                          textStyle: FlutterFlowTheme.of(context)
+                              .titleSmall
+                              .override(
+                                font: GoogleFonts.plusJakartaSans(
+                                  fontWeight: FontWeight.w600,
+                                ),
+                                color: FlutterFlowTheme.of(context).primary,
+                                fontSize: 14.0,
+                                letterSpacing: 0.0,
+                              ),
+                          elevation: 0.0,
+                          borderSide: BorderSide(
+                            color: FlutterFlowTheme.of(context).primary,
+                            width: 1.5,
+                          ),
+                          borderRadius: BorderRadius.circular(8.0),
                         ),
                       ),
                     ),
