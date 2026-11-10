@@ -226,7 +226,7 @@ class _WriteReviewWidgetState extends State<WriteReviewWidget> {
           ),
         );
 
-        context.pushNamed(MyReviewsWidget.routeName);
+        context.goNamed(MyReviewsWidget.routeName);
       }
     } catch (e) {
       if (mounted) {

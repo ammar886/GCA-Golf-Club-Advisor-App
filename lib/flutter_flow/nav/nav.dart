@@ -136,7 +136,9 @@ GoRouter createRouter(AppStateNotifier appStateNotifier) => GoRouter(
         FFRoute(
           name: MyReviewsWidget.routeName,
           path: MyReviewsWidget.routePath,
-          builder: (context, params) => MyReviewsWidget(),
+          builder: (context, params) => params.isEmpty
+              ? NavBarPage(initialPage: 'MyReviews')
+              : MyReviewsWidget(),
         ),
         FFRoute(
           name: MapWidget.routeName,

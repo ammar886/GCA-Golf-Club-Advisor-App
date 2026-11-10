@@ -14,9 +14,11 @@ class ReviewWidget extends StatefulWidget {
   const ReviewWidget({
     super.key,
     this.reviewDetails,
+    this.onReturned,
   });
 
   final ClubReviewsRow? reviewDetails;
+  final VoidCallback? onReturned;
 
   @override
   State<ReviewWidget> createState() => _ReviewWidgetState();
@@ -111,7 +113,16 @@ class _ReviewWidgetState extends State<ReviewWidget> {
                     child: Padding(
                       padding: EdgeInsets.all(8.0),
                       child: Text(
-                        'Pending',
+                        () {
+                          switch (widget.reviewDetails?.status?.toLowerCase()) {
+                            case 'approved':
+                              return 'Approved';
+                            case 'rejected':
+                              return 'Rejected';
+                            default:
+                              return 'Pending';
+                          }
+                        }(),
                         style: FlutterFlowTheme.of(context).bodyMedium.override(
                               font: GoogleFonts.inter(
                                 fontWeight: FontWeight.w600,
@@ -368,7 +379,7 @@ class _ReviewWidgetState extends State<ReviewWidget> {
                     ),
                     FFButtonWidget(
                       onPressed: () async {
-                        context.pushNamed(
+                        await context.pushNamed(
                           ReviewDetailViewWidget.routeName,
                           queryParameters: {
                             'review': serializeParam(
@@ -377,6 +388,7 @@ class _ReviewWidgetState extends State<ReviewWidget> {
                             ),
                           }.withoutNulls,
                         );
+                        widget.onReturned?.call();
                       },
                       text: 'View',
                       options: FFButtonOptions(

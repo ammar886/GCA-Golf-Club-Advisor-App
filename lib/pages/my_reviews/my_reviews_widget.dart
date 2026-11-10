@@ -4,6 +4,7 @@ import '/flutter_flow/flutter_flow_icon_button.dart';
 import '/flutter_flow/flutter_flow_theme.dart';
 import '/flutter_flow/flutter_flow_util.dart';
 import '/flutter_flow/flutter_flow_widgets.dart';
+import '/index.dart';
 import 'dart:ui';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
@@ -777,6 +778,9 @@ class _MyReviewsWidgetState extends State<MyReviewsWidget> {
     );
   }
 
+  bool _canPop(BuildContext context) =>
+      GoRouter.maybeOf(context)?.canPop() ?? Navigator.canPop(context);
+
   Widget _buildEmptyState() {
     return Center(
       child: Padding(
@@ -826,7 +830,11 @@ class _MyReviewsWidgetState extends State<MyReviewsWidget> {
             const SizedBox(height: 24.0),
             FFButtonWidget(
               onPressed: () {
-                context.safePop();
+                if (_canPop(context)) {
+                  context.safePop();
+                } else {
+                  context.goNamed(HomeWidget.routeName);
+                }
               },
               text: 'Explore Golf Clubs',
               options: FFButtonOptions(
@@ -858,16 +866,18 @@ class _MyReviewsWidgetState extends State<MyReviewsWidget> {
         backgroundColor: FlutterFlowTheme.of(context).secondaryBackground,
         automaticallyImplyLeading: false,
         elevation: 0.5,
-        leading: FlutterFlowIconButton(
-          buttonSize: 40.0,
-          fillColor: Colors.transparent,
-          icon: Icon(
-            Icons.arrow_back,
-            color: FlutterFlowTheme.of(context).primaryText,
-            size: 24.0,
-          ),
-          onPressed: () => context.safePop(),
-        ),
+        leading: _canPop(context)
+            ? FlutterFlowIconButton(
+                buttonSize: 40.0,
+                fillColor: Colors.transparent,
+                icon: Icon(
+                  Icons.arrow_back,
+                  color: FlutterFlowTheme.of(context).primaryText,
+                  size: 24.0,
+                ),
+                onPressed: () => context.safePop(),
+              )
+            : null,
         title: Text(
           'My Reviews',
           style: GoogleFonts.plusJakartaSans(

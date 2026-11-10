@@ -521,6 +521,7 @@ class _SignupWidgetState extends State<SignupWidget> {
                             }
 
                             FFAppState().clearGuestMode();
+                            FFAppState().currentRole = 'user';
 
                             await UsersTable().insert({
                               'id': currentUserUid,

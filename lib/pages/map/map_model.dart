@@ -9,9 +9,16 @@ class MapModel extends FlutterFlowModel<MapWidget> {
 
   GolfClubsRow? selectedMarker;
 
+  // State field(s) for search TextField.
+  FocusNode? searchFocusNode;
+  TextEditingController? searchController;
+
   @override
   void initState(BuildContext context) {}
 
   @override
-  void dispose() {}
+  void dispose() {
+    searchFocusNode?.dispose();
+    searchController?.dispose();
+  }
 }

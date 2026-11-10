@@ -171,28 +171,6 @@ class _UserProfileWidgetState extends State<UserProfileWidget> {
                       buttonSize: 40.0,
                       fillColor: Colors.transparent,
                       icon: Icon(
-                        Icons.rate_review_outlined,
-                        color: FlutterFlowTheme.of(context).tertiary,
-                        size: 24.0,
-                      ),
-                      onPressed: () async {
-                        if (FFAppState().isGuest) {
-                          await showGuestAuthBottomSheet(
-                            context,
-                            title: 'Sign In to View Reviews',
-                            message:
-                                'Guest users can browse clubs and public reviews. Sign in or create an account to view and manage your submitted reviews.',
-                          );
-                          return;
-                        }
-                        context.pushNamed(MyReviewsWidget.routeName);
-                      },
-                    ),
-                    FlutterFlowIconButton(
-                      borderRadius: 8.0,
-                      buttonSize: 40.0,
-                      fillColor: Colors.transparent,
-                      icon: Icon(
                         Icons.edit,
                         color: FlutterFlowTheme.of(context).tertiary,
                         size: 24.0,

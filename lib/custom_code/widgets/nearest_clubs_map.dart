@@ -27,6 +27,11 @@ class NearestClubsMap extends StatefulWidget {
     required this.clubs,
     required this.userLocation,
     this.onClubTap,
+    this.focusLocation,
+    this.focusVersion = 0,
+    this.focusZoom = 14.5,
+    this.searchedPinLocation,
+    this.mapPadding = EdgeInsets.zero,
   }) : super(key: key);
 
   final double? width;
@@ -34,6 +39,11 @@ class NearestClubsMap extends StatefulWidget {
   final List<GolfClubsRow> clubs;
   final LatLng userLocation;
   final Future Function(GolfClubsRow club)? onClubTap;
+  final LatLng? focusLocation;
+  final int focusVersion;
+  final double focusZoom;
+  final LatLng? searchedPinLocation;
+  final EdgeInsets mapPadding;
 
   @override
   State<NearestClubsMap> createState() => _NearestClubsMapState();
@@ -63,10 +73,34 @@ class _NearestClubsMapState extends State<NearestClubsMap> {
   @override
   void didUpdateWidget(covariant NearestClubsMap oldWidget) {
     super.didUpdateWidget(oldWidget);
-    if (!_sameClubs(oldWidget.clubs, widget.clubs)) {
+    final clubsChanged = !_sameClubs(oldWidget.clubs, widget.clubs);
+    final pinChanged =
+        oldWidget.searchedPinLocation != widget.searchedPinLocation;
+    if (clubsChanged) {
       _prepare();
       _loadVisibleImages();
+    } else if (pinChanged) {
+      _refreshMarkers();
     }
+
+    if (widget.focusLocation != null &&
+        (widget.focusVersion != oldWidget.focusVersion ||
+            widget.focusLocation != oldWidget.focusLocation)) {
+      _animateToLocation(widget.focusLocation!, zoom: widget.focusZoom);
+    }
+  }
+
+  Future<void> _animateToLocation(LatLng target, {double zoom = 14.5}) async {
+    final controller = _controller;
+    if (controller == null || !mounted) return;
+    await controller.animateCamera(
+      gmaps.CameraUpdate.newCameraPosition(
+        gmaps.CameraPosition(
+          target: gmaps.LatLng(target.latitude, target.longitude),
+          zoom: zoom,
+        ),
+      ),
+    );
   }
 
   bool _sameClubs(List<GolfClubsRow> a, List<GolfClubsRow> b) {
@@ -100,6 +134,25 @@ class _NearestClubsMapState extends State<NearestClubsMap> {
         onTap: () => widget.onClubTap?.call(club),
       );
     }).toSet();
+
+    final pin = widget.searchedPinLocation;
+    if (pin != null) {
+      markers.add(
+        gmaps.Marker(
+          markerId: const gmaps.MarkerId('__searched_location__'),
+          position: gmaps.LatLng(pin.latitude, pin.longitude),
+          icon: gmaps.BitmapDescriptor.defaultMarkerWithHue(
+            gmaps.BitmapDescriptor.hueAzure,
+          ),
+          infoWindow: gmaps.InfoWindow(
+            title: 'Searched Location',
+            snippet:
+                '${pin.latitude.toStringAsFixed(4)}, ${pin.longitude.toStringAsFixed(4)}',
+          ),
+        ),
+      );
+    }
+
     if (mounted) setState(() => _markers = markers);
   }
 
@@ -203,17 +256,19 @@ class _NearestClubsMapState extends State<NearestClubsMap> {
 
   @override
   Widget build(BuildContext context) {
+    final initialTarget = widget.focusLocation ?? widget.userLocation;
     return SizedBox(
       width: widget.width,
       height: widget.height,
       child: gmaps.GoogleMap(
         initialCameraPosition: gmaps.CameraPosition(
           target: gmaps.LatLng(
-            widget.userLocation.latitude,
-            widget.userLocation.longitude,
+            initialTarget.latitude,
+            initialTarget.longitude,
           ),
-          zoom: 12,
+          zoom: widget.focusLocation != null ? widget.focusZoom : 12,
         ),
+        padding: widget.mapPadding,
         markers: _markers,
         myLocationEnabled: true,
         myLocationButtonEnabled: true,

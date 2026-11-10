@@ -41,10 +41,13 @@ class FFAppState extends ChangeNotifier {
   set currentRole(String value) {
     _currentRole = value;
     secureStorage.setString('ff_currentRole', value);
+    notifyListeners();
   }
 
   void deleteCurrentRole() {
+    _currentRole = '';
     secureStorage.delete(key: 'ff_currentRole');
+    notifyListeners();
   }
 
   bool _isGuest = false;

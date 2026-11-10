@@ -11,6 +11,13 @@ class ReviewsManagementModel extends FlutterFlowModel<ReviewsManagementWidget> {
 
   ///  State fields for stateful widgets in this page.
 
+  // State field(s) for TabBar widget.
+  TabController? tabBarController;
+  int get tabBarCurrentIndex =>
+      tabBarController != null ? tabBarController!.index : 0;
+  int get tabBarPreviousIndex =>
+      tabBarController != null ? tabBarController!.previousIndex : 0;
+
   // Models for review dynamic component.
   late FlutterFlowDynamicModels<ReviewModel> reviewModels;
   // Model for navbar component.
@@ -24,6 +31,7 @@ class ReviewsManagementModel extends FlutterFlowModel<ReviewsManagementWidget> {
 
   @override
   void dispose() {
+    tabBarController?.dispose();
     reviewModels.dispose();
     navbarModel.dispose();
   }

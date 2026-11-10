@@ -141,7 +141,7 @@ class _TopTenWidgetState extends State<TopTenWidget> {
                                     ),
                                   ),
                                   TextSpan(
-                                    text: '10',
+                                    text: '50',
                                     style: GoogleFonts.montserrat(
                                       color: Color(0xFF1A1D1F),
                                       fontWeight: FontWeight.w900,
@@ -336,7 +336,7 @@ class _TopTenWidgetState extends State<TopTenWidget> {
                             child: FutureBuilder<List<GolfClubsRow>>(
                               future: GolfClubsTable().queryRows(
                                 queryFn: (q) => q.order('overall_rating'),
-                                limit: 10,
+                                limit: 50,
                               ),
                               builder: (context, snapshot) {
                                 // Customize what your widget looks like when it's loading.

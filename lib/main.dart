@@ -181,27 +181,45 @@ class _NavBarPageState extends State<NavBarPage> {
 
   @override
   Widget build(BuildContext context) {
+    context.watch<FFAppState>();
+
     final isGuest = FFAppState().isGuest;
-    final isAdmin = !isGuest && FFAppState().currentRole == 'admin';
+    final currentRole = FFAppState().currentRole.toLowerCase();
+    final isAdmin = !isGuest && currentRole == 'admin';
+    final isSubAdmin = !isGuest && currentRole == 'subadmin';
+    final isRegularUser = !isAdmin && !isSubAdmin;
     final tabs = <String, Widget>{
       'Home': HomeWidget(),
       'Map': MapWidget(),
       'topTen': TopTenWidget(),
       'newsScreen': NewsScreenWidget(),
+      if (isRegularUser) 'MyReviews': MyReviewsWidget(),
       'UserProfile': UserProfileWidget(),
       if (isAdmin) 'userManagement': UserManagementWidget(),
     };
-    final currentIndex = tabs.keys.toList().contains(_currentPageName)
-        ? tabs.keys.toList().indexOf(_currentPageName)
+    final tabKeys = tabs.keys.toList();
+    final currentIndex = tabKeys.contains(_currentPageName)
+        ? tabKeys.indexOf(_currentPageName)
         : 0;
+    final effectivePageName = tabKeys[currentIndex];
 
     return Scaffold(
       resizeToAvoidBottomInset: !widget.disableResizeToAvoidBottomInset,
-      body: _currentPage ?? tabs[_currentPageName],
+      body: _currentPage ?? tabs[effectivePageName],
       bottomNavigationBar: BottomNavigationBar(
         currentIndex: currentIndex,
         onTap: (i) {
-          final tabKey = tabs.keys.toList()[i];
+          final tabKey = tabKeys[i];
+          if (isGuest && tabKey == 'MyReviews') {
+            showGuestAuthBottomSheet(
+              context,
+              title: 'Sign In to View Reviews',
+              message:
+                  'Guest users can browse clubs and public reviews. Sign in or create an account to view and manage your submitted reviews.',
+              icon: Icons.rate_review_outlined,
+            );
+            return;
+          }
           if (isGuest && tabKey == 'UserProfile') {
             showGuestAuthBottomSheet(
               context,
@@ -242,7 +260,7 @@ class _NavBarPageState extends State<NavBarPage> {
             icon: Icon(
               Icons.airline_stops,
             ),
-            label: 'Top 10',
+            label: 'Top 50',
             tooltip: '',
           ),
           BottomNavigationBarItem(
@@ -255,6 +273,14 @@ class _NavBarPageState extends State<NavBarPage> {
             label: 'News',
             tooltip: '',
           ),
+          if (isRegularUser)
+            BottomNavigationBarItem(
+              icon: Icon(
+                Icons.rate_review_rounded,
+              ),
+              label: 'Reviews',
+              tooltip: '',
+            ),
           BottomNavigationBarItem(
             icon: Icon(
               isGuest ? Icons.account_circle_outlined : Icons.person,
