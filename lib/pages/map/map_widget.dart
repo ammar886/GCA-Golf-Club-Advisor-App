@@ -1,4 +1,5 @@
 import 'dart:math' as math;
+import '/backend/api_requests/region_geocoding_service.dart';
 import '/backend/supabase/supabase.dart';
 import '/components/club_map_card_widget.dart';
 import '/flutter_flow/flutter_flow_theme.dart';
@@ -17,11 +18,13 @@ class MapWidget extends StatefulWidget {
     this.initialUserLocation,
     this.mapBuilder,
     this.onClubSelected,
+    this.geocodingService,
   });
 
   final Future<List<GolfClubsRow>> Function()? loadClubs;
   final LatLng? initialUserLocation;
   final Future<void> Function(GolfClubsRow club)? onClubSelected;
+  final RegionGeocodingService? geocodingService;
   final Widget Function(
     BuildContext context,
     List<GolfClubsRow> clubs,
@@ -30,10 +33,48 @@ class MapWidget extends StatefulWidget {
     int focusVersion,
     LatLng? searchedPinLocation,
     Future<void> Function(GolfClubsRow club) onClubTap,
+    LatLng? focusSouthwest,
+    LatLng? focusNortheast,
+    double? searchRadiusKm,
   )? mapBuilder;
+
+  static const double defaultRegionRadiusKm = 25.0;
 
   static String routeName = 'Map';
   static String routePath = '/map';
+
+  static bool isLikelyPostalCode(String raw) =>
+      RegionGeocodingService.isLikelyPostalCode(raw);
+
+  static ({List<GolfClubsRow> clubs, bool withinRadius}) findNearbyClubs(
+    List<GolfClubsRow> clubs,
+    LatLng center, {
+    double radiusKm = defaultRegionRadiusKm,
+    int fallbackLimit = 8,
+  }) {
+    final withDistance = <(GolfClubsRow, double)>[];
+    for (final club in clubs) {
+      if (!hasValidCoordinates(club)) {
+        continue;
+      }
+      final dist = distanceKm(center, LatLng(club.latitude!, club.longitude!));
+      withDistance.add((club, dist));
+    }
+    withDistance.sort((a, b) => a.$2.compareTo(b.$2));
+
+    final inRadius = withDistance
+        .where((entry) => entry.$2 <= radiusKm)
+        .map((entry) => entry.$1)
+        .toList();
+    if (inRadius.isNotEmpty) {
+      return (clubs: inRadius, withinRadius: true);
+    }
+
+    return (
+      clubs: withDistance.take(fallbackLimit).map((entry) => entry.$1).toList(),
+      withinRadius: false,
+    );
+  }
 
   /// Parses coordinate strings such as `"33.5021, -82.0226"`,
   /// `"33.5021 -82.0226"`, or `"LatLng(lat: 33.5021, lng: -82.0226)"`.
@@ -160,13 +201,24 @@ class MapWidget extends StatefulWidget {
 class _MapWidgetState extends State<MapWidget> {
   late MapModel _model;
   late Future<List<GolfClubsRow>> _clubsFuture;
+  late final RegionGeocodingService _geocodingService;
 
   final scaffoldKey = GlobalKey<ScaffoldState>();
   LatLng? currentUserLocationValue;
   LatLng? _focusLocation;
+  LatLng? _focusSouthwest;
+  LatLng? _focusNortheast;
+  double _focusZoom = 14.5;
   int _focusVersion = 0;
   LatLng? _searchedPinLocation;
+  String? _searchedPinTitle;
+  double? _searchRadiusKm;
+  GeocodedRegion? _activeRegion;
+  bool _isRegionPanelMinimized = false;
   bool _showSearchResults = false;
+  bool _isGeocoding = false;
+  String? _geocodingMessage;
+  int _geocodeRequestToken = 0;
 
   @override
   void initState() {
@@ -174,6 +226,7 @@ class _MapWidgetState extends State<MapWidget> {
     _model = createModel(context, () => MapModel());
     _model.searchController ??= TextEditingController();
     _model.searchFocusNode ??= FocusNode();
+    _geocodingService = widget.geocodingService ?? RegionGeocodingService();
     _clubsFuture = _fetchClubs();
 
     if (widget.initialUserLocation != null) {
@@ -229,17 +282,31 @@ class _MapWidgetState extends State<MapWidget> {
     _showSearchResults = false;
   }
 
-  Future<void> _selectClub(GolfClubsRow club) async {
-    _model.searchController?.text = club.name ?? '';
-    _model.searchController?.selection = TextSelection.fromPosition(
-      TextPosition(offset: _model.searchController?.text.length ?? 0),
-    );
+  Future<void> _selectClub(
+    GolfClubsRow club, {
+    bool clearRegion = true,
+  }) async {
+    if (clearRegion) {
+      _model.searchController?.text = club.name ?? '';
+      _model.searchController?.selection = TextSelection.fromPosition(
+        TextPosition(offset: _model.searchController?.text.length ?? 0),
+      );
+    }
     _unfocusAndHideDropdown();
+    _geocodingMessage = null;
 
     if (MapWidget.hasValidCoordinates(club)) {
       _focusLocation = LatLng(club.latitude!, club.longitude!);
+      _focusSouthwest = null;
+      _focusNortheast = null;
+      _focusZoom = 14.5;
       _focusVersion++;
-      _searchedPinLocation = null;
+      if (clearRegion) {
+        _searchedPinLocation = null;
+        _searchedPinTitle = null;
+        _searchRadiusKm = null;
+        _activeRegion = null;
+      }
     }
     safeSetState(() {});
     if (widget.onClubSelected != null) {
@@ -253,13 +320,87 @@ class _MapWidgetState extends State<MapWidget> {
     _unfocusAndHideDropdown();
     safeSetState(() {
       _focusLocation = coords;
+      _focusSouthwest = null;
+      _focusNortheast = null;
+      _focusZoom = 13.5;
       _focusVersion++;
       _searchedPinLocation = coords;
+      _searchedPinTitle = 'Searched Location';
+      _searchRadiusKm = null;
+      _activeRegion = null;
+      _geocodingMessage = null;
     });
   }
 
+  Future<void> _searchRegion(
+    String rawQuery,
+    List<GolfClubsRow> clubs,
+  ) async {
+    final query = rawQuery.trim();
+    if (query.isEmpty) {
+      return;
+    }
+
+    final token = ++_geocodeRequestToken;
+    _unfocusAndHideDropdown();
+    safeSetState(() {
+      _isGeocoding = true;
+      _geocodingMessage = null;
+    });
+
+    try {
+      final region =
+          await _geocodingService.searchRegion(query, clubs: clubs);
+      if (!mounted || token != _geocodeRequestToken) {
+        return;
+      }
+
+      if (region == null) {
+        safeSetState(() {
+          _isGeocoding = false;
+          _geocodingMessage =
+              'No location or zipcode found for "$query".';
+        });
+        return;
+      }
+
+      final bounds = RegionGeocodingService.computeRegionBounds(
+        region,
+        minRadiusKm: MapWidget.defaultRegionRadiusKm,
+      );
+
+      safeSetState(() {
+        _isGeocoding = false;
+        _geocodingMessage = null;
+        _focusLocation = region.center;
+        _focusSouthwest = bounds.$1;
+        _focusNortheast = bounds.$2;
+        _focusZoom = 11.5;
+        _focusVersion++;
+        _searchedPinLocation = region.center;
+        _searchedPinTitle = region.displayName;
+        _searchRadiusKm = MapWidget.defaultRegionRadiusKm;
+        _activeRegion = region;
+        _isRegionPanelMinimized = false;
+      });
+    } catch (_) {
+      if (!mounted || token != _geocodeRequestToken) {
+        return;
+      }
+      safeSetState(() {
+        _isGeocoding = false;
+        _geocodingMessage =
+            'Unable to look up "$query" right now. Please try again.';
+      });
+    }
+  }
+
   Future<void> _submitSearch(List<GolfClubsRow> clubs) async {
-    final query = _model.searchController?.text ?? '';
+    final query = (_model.searchController?.text ?? '').trim();
+    if (query.isEmpty) {
+      return;
+    }
+
     final parsedCoord = MapWidget.parseLatLng(query);
     if (parsedCoord != null) {
       _goToCoordinates(parsedCoord);
@@ -267,19 +408,40 @@ class _MapWidgetState extends State<MapWidget> {
     }
 
     final matches = MapWidget.searchClubs(clubs, query);
-    if (matches.isNotEmpty) {
-      await _selectClub(matches.first);
-    } else {
-      _unfocusAndHideDropdown();
-      safeSetState(() {});
+    if (MapWidget.isLikelyPostalCode(query) || matches.isEmpty) {
+      await _searchRegion(query, clubs);
+      return;
     }
+
+    await _selectClub(matches.first);
   }
 
   void _clearSearch() {
+    _geocodeRequestToken++;
     _model.searchController?.clear();
     _unfocusAndHideDropdown();
     safeSetState(() {
+      _isGeocoding = false;
+      _geocodingMessage = null;
       _searchedPinLocation = null;
+      _searchedPinTitle = null;
+      _searchRadiusKm = null;
+      _activeRegion = null;
+      _focusSouthwest = null;
+      _focusNortheast = null;
+      _focusZoom = 14.5;
+    });
+  }
+
+  void _dismissActiveRegion() {
+    safeSetState(() {
+      _activeRegion = null;
+      _searchedPinLocation = null;
+      _searchedPinTitle = null;
+      _searchRadiusKm = null;
+      _focusSouthwest = null;
+      _focusNortheast = null;
+      _focusZoom = 14.5;
     });
   }
 
@@ -299,9 +461,16 @@ class _MapWidgetState extends State<MapWidget> {
     final query = _model.searchController?.text ?? '';
     final trimmed = query.trim();
     final parsedCoord = MapWidget.parseLatLng(trimmed);
+    final isPostal = MapWidget.isLikelyPostalCode(trimmed);
     final matches = _showSearchResults && trimmed.isNotEmpty
         ? MapWidget.searchClubs(clubs, trimmed)
         : const <GolfClubsRow>[];
+    final showRegionAction =
+        _showSearchResults && trimmed.length >= 2 && parsedCoord == null;
+
+    final itemCount = (parsedCoord != null ? 1 : 0) +
+        (showRegionAction ? 1 : 0) +
+        matches.length;
 
     return Column(
       mainAxisSize: MainAxisSize.min,
@@ -321,6 +490,7 @@ class _MapWidgetState extends State<MapWidget> {
             },
             onChanged: (value) {
               safeSetState(() {
+                _geocodingMessage = null;
                 _showSearchResults = value.trim().isNotEmpty;
               });
             },
@@ -335,7 +505,7 @@ class _MapWidgetState extends State<MapWidget> {
                   letterSpacing: 0.0,
                 ),
             decoration: InputDecoration(
-              hintText: 'Search by club name, address, or lat, lng',
+              hintText: 'Search club, address, zipcode, or lat, lng',
               hintStyle: FlutterFlowTheme.of(context).labelMedium.override(
                     font: GoogleFonts.inter(),
                     color: FlutterFlowTheme.of(context).secondaryText,
@@ -347,16 +517,30 @@ class _MapWidgetState extends State<MapWidget> {
                 color: FlutterFlowTheme.of(context).primary,
                 size: 22.0,
               ),
-              suffixIcon: trimmed.isNotEmpty
-                  ? IconButton(
-                      icon: Icon(
-                        Icons.close_rounded,
-                        color: FlutterFlowTheme.of(context).secondaryText,
-                        size: 20.0,
+              suffixIcon: _isGeocoding
+                  ? Padding(
+                      padding: const EdgeInsets.all(12.0),
+                      child: SizedBox(
+                        width: 18.0,
+                        height: 18.0,
+                        child: CircularProgressIndicator(
+                          strokeWidth: 2.0,
+                          valueColor: AlwaysStoppedAnimation<Color>(
+                            FlutterFlowTheme.of(context).primary,
+                          ),
+                        ),
                       ),
-                      onPressed: _clearSearch,
                     )
-                  : null,
+                  : trimmed.isNotEmpty
+                      ? IconButton(
+                          icon: Icon(
+                            Icons.close_rounded,
+                            color: FlutterFlowTheme.of(context).secondaryText,
+                            size: 20.0,
+                          ),
+                          onPressed: _clearSearch,
+                        )
+                      : null,
               filled: true,
               fillColor: FlutterFlowTheme.of(context).secondaryBackground,
               contentPadding: const EdgeInsets.symmetric(
@@ -387,6 +571,48 @@ class _MapWidgetState extends State<MapWidget> {
             ),
           ),
         ),
+        if (_geocodingMessage != null)
+          Padding(
+            padding: const EdgeInsets.only(top: 6.0),
+            child: Material(
+              elevation: 4.0,
+              borderRadius: BorderRadius.circular(12.0),
+              color: FlutterFlowTheme.of(context).secondaryBackground,
+              child: Padding(
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 14.0,
+                  vertical: 10.0,
+                ),
+                child: Row(
+                  children: [
+                    Icon(
+                      Icons.info_outline_rounded,
+                      color: FlutterFlowTheme.of(context).error,
+                      size: 18.0,
+                    ),
+                    const SizedBox(width: 8.0),
+                    Expanded(
+                      child: Text(
+                        _geocodingMessage!,
+                        style: GoogleFonts.inter(
+                          fontSize: 12.5,
+                          color: FlutterFlowTheme.of(context).primaryText,
+                        ),
+                      ),
+                    ),
+                    InkWell(
+                      onTap: () => safeSetState(() => _geocodingMessage = null),
+                      child: Icon(
+                        Icons.close_rounded,
+                        size: 18.0,
+                        color: FlutterFlowTheme.of(context).secondaryText,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ),
+          ),
         if (_showSearchResults && trimmed.isNotEmpty)
           Padding(
             padding: const EdgeInsets.only(top: 6.0),
@@ -396,7 +622,7 @@ class _MapWidgetState extends State<MapWidget> {
               color: FlutterFlowTheme.of(context).secondaryBackground,
               child: ConstrainedBox(
                 constraints: const BoxConstraints(maxHeight: 260.0),
-                child: (parsedCoord == null && matches.isEmpty)
+                child: itemCount == 0
                     ? Padding(
                         padding: const EdgeInsets.all(16.0),
                         child: Row(
@@ -427,7 +653,7 @@ class _MapWidgetState extends State<MapWidget> {
                     : ListView.separated(
                         shrinkWrap: true,
                         padding: const EdgeInsets.symmetric(vertical: 6.0),
-                        itemCount: matches.length + (parsedCoord != null ? 1 : 0),
+                        itemCount: itemCount,
                         separatorBuilder: (_, __) => Divider(
                           height: 1.0,
                           color: FlutterFlowTheme.of(context).alternate,
@@ -460,8 +686,47 @@ class _MapWidgetState extends State<MapWidget> {
                             );
                           }
 
-                          final clubIndex =
-                              parsedCoord != null ? index - 1 : index;
+                          final regionActionIndex = parsedCoord != null
+                              ? -1
+                              : (isPostal ? 0 : matches.length);
+
+                          if (showRegionAction && index == regionActionIndex) {
+                            return ListTile(
+                              dense: true,
+                              leading: Icon(
+                                Icons.location_searching_rounded,
+                                color: FlutterFlowTheme.of(context).primary,
+                              ),
+                              title: Text(
+                                isPostal
+                                    ? 'Search zipcode "$trimmed"'
+                                    : 'Search region "$trimmed"',
+                                maxLines: 1,
+                                overflow: TextOverflow.ellipsis,
+                                style: GoogleFonts.plusJakartaSans(
+                                  fontWeight: FontWeight.w600,
+                                  fontSize: 13.0,
+                                  color:
+                                      FlutterFlowTheme.of(context).primaryText,
+                                ),
+                              ),
+                              subtitle: Text(
+                                'Move map to area and show nearby clubs',
+                                style: GoogleFonts.inter(
+                                  fontSize: 11.5,
+                                  color: FlutterFlowTheme.of(context).primary,
+                                ),
+                              ),
+                              onTap: () => _searchRegion(trimmed, clubs),
+                            );
+                          }
+
+                          int clubIndex = index;
+                          if (parsedCoord != null) {
+                            clubIndex = index - 1;
+                          } else if (showRegionAction && isPostal) {
+                            clubIndex = index - 1;
+                          }
                           final club = matches[clubIndex];
                           final hasCoords = MapWidget.hasValidCoordinates(club);
                           final addressLine = _formatClubAddress(club);
@@ -512,6 +777,152 @@ class _MapWidgetState extends State<MapWidget> {
             ),
           ),
       ],
+    );
+  }
+
+  Widget _buildNearbyRegionPanel(List<GolfClubsRow> allClubs) {
+    final region = _activeRegion!;
+    final nearby = MapWidget.findNearbyClubs(
+      allClubs,
+      region.center,
+      radiusKm: MapWidget.defaultRegionRadiusKm,
+    );
+
+    final subtitleText = nearby.clubs.isEmpty
+        ? 'No golf clubs with coordinates found'
+        : nearby.withinRadius
+            ? '${nearby.clubs.length} ${nearby.clubs.length == 1 ? 'club' : 'clubs'} within ${MapWidget.defaultRegionRadiusKm.toInt()} km'
+            : 'No clubs within ${MapWidget.defaultRegionRadiusKm.toInt()} km • Nearest clubs';
+
+    return Material(
+      elevation: 6.0,
+      borderRadius: BorderRadius.circular(16.0),
+      color: FlutterFlowTheme.of(context).secondaryBackground,
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Padding(
+            padding: const EdgeInsets.fromLTRB(14.0, 10.0, 8.0, 10.0),
+            child: Row(
+              children: [
+                Icon(
+                  Icons.place_rounded,
+                  color: FlutterFlowTheme.of(context).primary,
+                  size: 20.0,
+                ),
+                const SizedBox(width: 8.0),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Text(
+                        region.displayName,
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                        style: GoogleFonts.plusJakartaSans(
+                          fontWeight: FontWeight.bold,
+                          fontSize: 13.0,
+                          color: FlutterFlowTheme.of(context).primaryText,
+                        ),
+                      ),
+                      Text(
+                        subtitleText,
+                        style: GoogleFonts.inter(
+                          fontSize: 11.5,
+                          color: FlutterFlowTheme.of(context).secondaryText,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+                IconButton(
+                  visualDensity: VisualDensity.compact,
+                  icon: Icon(
+                    _isRegionPanelMinimized
+                        ? Icons.keyboard_arrow_up_rounded
+                        : Icons.keyboard_arrow_down_rounded,
+                    color: FlutterFlowTheme.of(context).primaryText,
+                  ),
+                  onPressed: () => safeSetState(
+                    () => _isRegionPanelMinimized = !_isRegionPanelMinimized,
+                  ),
+                ),
+                IconButton(
+                  visualDensity: VisualDensity.compact,
+                  icon: Icon(
+                    Icons.close_rounded,
+                    size: 18.0,
+                    color: FlutterFlowTheme.of(context).secondaryText,
+                  ),
+                  onPressed: _dismissActiveRegion,
+                ),
+              ],
+            ),
+          ),
+          if (!_isRegionPanelMinimized && nearby.clubs.isNotEmpty) ...[
+            Divider(
+              height: 1.0,
+              color: FlutterFlowTheme.of(context).alternate,
+            ),
+            ConstrainedBox(
+              constraints: const BoxConstraints(maxHeight: 150.0),
+              child: ListView.separated(
+                shrinkWrap: true,
+                padding: const EdgeInsets.symmetric(vertical: 4.0),
+                itemCount: nearby.clubs.length,
+                separatorBuilder: (_, __) => Divider(
+                  height: 1.0,
+                  color: FlutterFlowTheme.of(context).alternate,
+                ),
+                itemBuilder: (context, index) {
+                  final club = nearby.clubs[index];
+                  final distKm = MapWidget.distanceKm(
+                    region.center,
+                    LatLng(club.latitude!, club.longitude!),
+                  );
+                  return ListTile(
+                    dense: true,
+                    leading: Icon(
+                      Icons.golf_course_rounded,
+                      color: FlutterFlowTheme.of(context).primary,
+                      size: 20.0,
+                    ),
+                    title: Text(
+                      club.name ?? 'Golf Club',
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                      style: GoogleFonts.plusJakartaSans(
+                        fontWeight: FontWeight.w600,
+                        fontSize: 12.5,
+                        color: FlutterFlowTheme.of(context).primaryText,
+                      ),
+                    ),
+                    subtitle: Text(
+                      _formatClubAddress(club),
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                      style: GoogleFonts.inter(
+                        fontSize: 11.0,
+                        color: FlutterFlowTheme.of(context).secondaryText,
+                      ),
+                    ),
+                    trailing: Text(
+                      '${distKm.toStringAsFixed(1)} km',
+                      style: GoogleFonts.inter(
+                        fontWeight: FontWeight.w600,
+                        fontSize: 11.5,
+                        color: FlutterFlowTheme.of(context).primary,
+                      ),
+                    ),
+                    onTap: () => _selectClub(club, clearRegion: false),
+                  );
+                },
+              ),
+            ),
+          ],
+        ],
+      ),
     );
   }
 
@@ -737,6 +1148,9 @@ class _MapWidgetState extends State<MapWidget> {
                             _focusVersion,
                             _searchedPinLocation,
                             _showClubCardDialog,
+                            _focusSouthwest,
+                            _focusNortheast,
+                            _searchRadiusKm,
                           )
                         : custom_widgets.NearestClubsMap(
                             width: double.infinity,
@@ -744,9 +1158,19 @@ class _MapWidgetState extends State<MapWidget> {
                             clubs: containerGolfClubsRowList,
                             userLocation: currentUserLocationValue!,
                             focusLocation: _focusLocation,
+                            focusSouthwest: _focusSouthwest,
+                            focusNortheast: _focusNortheast,
+                            focusZoom: _focusZoom,
                             focusVersion: _focusVersion,
                             searchedPinLocation: _searchedPinLocation,
-                            mapPadding: const EdgeInsets.only(top: 76.0),
+                            searchedPinTitle: _searchedPinTitle,
+                            searchRadiusKm: _searchRadiusKm,
+                            mapPadding: EdgeInsets.only(
+                              top: 76.0,
+                              bottom: _activeRegion != null
+                                  ? (_isRegionPanelMinimized ? 76.0 : 220.0)
+                                  : 0.0,
+                            ),
                             onClubTap: _showClubCardDialog,
                           ),
                   ),
@@ -756,6 +1180,13 @@ class _MapWidgetState extends State<MapWidget> {
                     right: 16.0,
                     child: _buildSearchOverlay(containerGolfClubsRowList),
                   ),
+                  if (_activeRegion != null)
+                    Positioned(
+                      left: 16.0,
+                      right: 16.0,
+                      bottom: 16.0,
+                      child: _buildNearbyRegionPanel(containerGolfClubsRowList),
+                    ),
                 ],
               );
             },

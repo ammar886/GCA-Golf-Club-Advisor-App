@@ -278,7 +278,7 @@ class _NavBarPageState extends State<NavBarPage> {
               icon: Icon(
                 Icons.rate_review_rounded,
               ),
-              label: 'Reviews',
+              label: 'My Reviews',
               tooltip: '',
             ),
           BottomNavigationBarItem(

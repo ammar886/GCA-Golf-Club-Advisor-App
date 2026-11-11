@@ -10,7 +10,16 @@ import 'router_model.dart';
 export 'router_model.dart';
 
 class RouterWidget extends StatefulWidget {
-  const RouterWidget({super.key});
+  const RouterWidget({
+    super.key,
+    this.fetchUserRole,
+    this.isLoggedInOverride,
+    this.userIdOverride,
+  });
+
+  final Future<String?> Function(String uid)? fetchUserRole;
+  final bool? isLoggedInOverride;
+  final String? userIdOverride;
 
   static String routeName = 'router';
   static String routePath = '/router';
@@ -31,20 +40,69 @@ class _RouterWidgetState extends State<RouterWidget> {
 
     // On page load action.
     SchedulerBinding.instance.addPostFrameCallback((_) async {
-      _model.currentUser = await UsersTable().queryRows(
-        queryFn: (q) => q.eqOrNull(
-          'id',
-          currentUserUid,
-        ),
-      );
-      if (_model.currentUser?.firstOrNull?.role == 'admin') {
-        context.goNamed(AdminHomeWidget.routeName);
-      } else {
-        context.goNamed(HomeWidget.routeName);
-      }
+      await _resolveRoute();
     });
 
     WidgetsBinding.instance.addPostFrameCallback((_) => safeSetState(() {}));
+  }
+
+  Future<void> _resolveRoute() async {
+    final isUserLoggedIn = widget.isLoggedInOverride ?? loggedIn;
+    final uid = widget.userIdOverride ?? currentUserUid;
+
+    if (!isUserLoggedIn || uid.isEmpty) {
+      if (!mounted) return;
+      if (FFAppState().isGuest) {
+        context.goNamed(HomeWidget.routeName);
+      } else {
+        context.goNamed(SplashWidget.routeName);
+      }
+      return;
+    }
+
+    String? role;
+    try {
+      if (widget.fetchUserRole != null) {
+        role = await widget.fetchUserRole!(uid)
+            .timeout(const Duration(seconds: 10));
+      } else {
+        _model.currentUser = await UsersTable()
+            .queryRows(
+              queryFn: (q) => q.eqOrNull(
+                'id',
+                uid,
+              ),
+            )
+            .timeout(const Duration(seconds: 10));
+        role = _model.currentUser?.firstOrNull?.role;
+      }
+    } catch (e) {
+      debugPrint('Error resolving route in RouterWidget: $e');
+    }
+
+    if (!mounted) return;
+
+    final stillLoggedIn = widget.isLoggedInOverride ?? loggedIn;
+    final currentUid = widget.userIdOverride ?? currentUserUid;
+    if (!stillLoggedIn || currentUid.isEmpty) {
+      if (FFAppState().isGuest) {
+        context.goNamed(HomeWidget.routeName);
+      } else {
+        context.goNamed(SplashWidget.routeName);
+      }
+      return;
+    }
+
+    if (role != null && role.isNotEmpty) {
+      FFAppState().currentRole = role;
+    }
+
+    final effectiveRole = (role ?? FFAppState().currentRole).toLowerCase();
+    if (effectiveRole == 'admin' || effectiveRole == 'subadmin') {
+      context.goNamed(AdminHomeWidget.routeName);
+    } else {
+      context.goNamed(HomeWidget.routeName);
+    }
   }
 
   @override

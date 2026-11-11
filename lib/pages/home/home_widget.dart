@@ -45,17 +45,33 @@ class _HomeWidgetState extends State<HomeWidget> {
         safeSetState(() {});
         return;
       }
-      _model.currentUser = await UsersTable().queryRows(
-        queryFn: (q) => q.eqOrNull(
-          'id',
-          currentUserUid,
-        ),
-      );
+      if (!loggedIn || currentUserUid.isEmpty) {
+        _model.isLoading = false;
+        if (mounted) {
+          safeSetState(() {});
+          context.goNamed(SplashWidget.routeName);
+        }
+        return;
+      }
+      try {
+        _model.currentUser = await UsersTable().queryRows(
+          queryFn: (q) => q.eqOrNull(
+            'id',
+            currentUserUid,
+          ),
+        );
+      } catch (e) {
+        debugPrint('Error loading current user in HomeWidget: $e');
+      }
+      if (!mounted) {
+        return;
+      }
       if (_model.currentUser?.firstOrNull?.role != null) {
         FFAppState().currentRole = _model.currentUser!.firstOrNull!.role!;
       }
       safeSetState(() {});
-      if (_model.currentUser?.firstOrNull?.role == 'admin') {
+      final role = FFAppState().currentRole.toLowerCase();
+      if (role == 'admin' || role == 'subadmin') {
         context.goNamed(AdminHomeWidget.routeName);
       } else {
         _model.isLoading = false;

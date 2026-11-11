@@ -41,17 +41,24 @@ class _UserProfileWidgetState extends State<UserProfileWidget> {
 
     // On page load action.
     SchedulerBinding.instance.addPostFrameCallback((_) async {
-      if (FFAppState().isGuest) {
+      if (FFAppState().isGuest || !loggedIn || currentUserUid.isEmpty) {
         _model.isLoading = false;
         safeSetState(() {});
         return;
       }
-      _model.userDetails = await UsersTable().queryRows(
-        queryFn: (q) => q.eqOrNull(
-          'id',
-          currentUserUid,
-        ),
-      );
+      try {
+        _model.userDetails = await UsersTable().queryRows(
+          queryFn: (q) => q.eqOrNull(
+            'id',
+            currentUserUid,
+          ),
+        );
+      } catch (e) {
+        debugPrint('Error loading user profile: $e');
+      }
+      if (!mounted) {
+        return;
+      }
       _model.isLoading = false;
       safeSetState(() {});
     });
@@ -209,6 +216,7 @@ class _UserProfileWidgetState extends State<UserProfileWidget> {
                       onPressed: () async {
                         if (FFAppState().isGuest) {
                           FFAppState().clearGuestMode();
+                          FFAppState().deleteCurrentRole();
                           context.goNamedAuth(
                               SplashWidget.routeName, context.mounted);
                           return;

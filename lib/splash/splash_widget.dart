@@ -34,10 +34,13 @@ class _SplashWidgetState extends State<SplashWidget> {
           milliseconds: 2000,
         ),
       );
+      if (!mounted) {
+        return;
+      }
       if (loggedIn || FFAppState().isGuest) {
-        context.pushNamed(HomeWidget.routeName);
+        context.goNamed(HomeWidget.routeName);
       } else {
-        context.pushNamed(SignupWidget.routeName);
+        context.goNamed(SignupWidget.routeName);
       }
     });
 

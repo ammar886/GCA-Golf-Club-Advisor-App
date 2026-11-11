@@ -38,15 +38,15 @@ void main() {
     );
     await tester.pumpAndSettle();
 
-    expect(find.text('Reviews'), findsOneWidget);
+    expect(find.text('My Reviews'), findsOneWidget);
     expect(find.byIcon(Icons.rate_review_rounded), findsOneWidget);
     expect(find.text('Users'), findsNothing);
 
-    await tester.tap(find.text('Reviews'));
+    await tester.tap(find.text('My Reviews'));
     await tester.pumpAndSettle();
 
     expect(find.byType(MyReviewsWidget), findsOneWidget);
-    expect(find.text('My Reviews'), findsOneWidget);
+    expect(find.text('My Reviews'), findsWidgets);
     expect(find.byIcon(Icons.arrow_back), findsNothing);
   });
 
@@ -59,7 +59,7 @@ void main() {
     );
     await tester.pumpAndSettle();
 
-    expect(find.text('Reviews'), findsNothing);
+    expect(find.text('My Reviews'), findsNothing);
     expect(find.byIcon(Icons.rate_review_rounded), findsNothing);
     expect(find.text('Users'), findsOneWidget);
   });
@@ -73,7 +73,7 @@ void main() {
     );
     await tester.pumpAndSettle();
 
-    expect(find.text('Reviews'), findsNothing);
+    expect(find.text('My Reviews'), findsNothing);
     expect(find.byIcon(Icons.rate_review_rounded), findsNothing);
     expect(find.text('Users'), findsNothing);
   });
@@ -101,7 +101,7 @@ void main() {
     var navBar =
         tester.widget<BottomNavigationBar>(find.byType(BottomNavigationBar));
     expect(navBar.currentIndex, 4);
-    expect(find.text('Reviews'), findsOneWidget);
+    expect(find.text('My Reviews'), findsOneWidget);
 
     FFAppState().currentRole = 'subadmin';
     await tester.pumpAndSettle();
@@ -109,7 +109,7 @@ void main() {
     navBar =
         tester.widget<BottomNavigationBar>(find.byType(BottomNavigationBar));
     expect(navBar.currentIndex, 0);
-    expect(find.text('Reviews'), findsNothing);
+    expect(find.text('My Reviews'), findsNothing);
     expect(tester.takeException(), isNull);
   });
 
@@ -151,8 +151,8 @@ void main() {
     );
     await tester.pumpAndSettle();
 
-    expect(find.text('Reviews'), findsOneWidget);
-    await tester.tap(find.text('Reviews'));
+    expect(find.text('My Reviews'), findsOneWidget);
+    await tester.tap(find.text('My Reviews'));
     await tester.pumpAndSettle();
 
     expect(find.text('Sign In to View Reviews'), findsOneWidget);
